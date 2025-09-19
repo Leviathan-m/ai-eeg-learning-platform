@@ -165,28 +165,28 @@ CNN-LSTM models trained on 120+ participant data analyze EEG patterns (theta/alp
 ### 🚀 **Option 1: Run Everything with Docker (Recommended)**
 
 ```bash
-# 1. 레포지토리 클론
+# 1. Clone repository
 git clone https://github.com/Leviathan-m/ai-eeg-learning-platform.git
 cd ai-eeg-learning-platform
 
-# 2. Docker로 모든 서비스 실행
+# 2. Run all services with Docker
 docker-compose up -d
 
-# 3. 실행 확인
+# 3. Check status
 docker-compose ps
 ```
 
 ### 🔧 **Option 2: Manual Setup**
 
 ```bash
-# Backend 설정
+# Backend setup
 cd backend
 python -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 uvicorn main:app --reload --host 0.0.0.0 --port 8000
 
-# Frontend 설정 (새 터미널에서)
+# Frontend setup (in new terminal)
 cd frontend/web
 npm install --legacy-peer-deps
 npm start
@@ -196,103 +196,103 @@ npm start
 
 ---
 
-## 🎮 실행 후 확인사항
+## 🎮 What You'll See After Setup
 
 <div align="center">
 
-| ✅ **실시간 대시보드** | ✅ **스마트 추천** | ✅ **진행 추적** |
+| ✅ **Real-time Dashboard** | ✅ **Smart Recommendations** | ✅ **Progress Tracking** |
 |:---:|:---:|:---:|
-| 주의력과 인지 부하 실시간 표시 | 정신적 과부하 예방 추천 | 신경과학 기반 분석 |
-| 🔴 **EEG 신호 품질 모니터링** | ⚡ **동적 난이도 조절** | 🎯 **개인화된 학습 경로** |
-| 자동 아티팩트 감지 | 50ms 내 뇌파 응답 | 120+명 검증 데이터 기반 |
+| Live attention & cognitive load display | Prevent overload recommendations | Neuroscience-based analytics |
+| 🔴 **EEG Signal Quality Monitoring** | ⚡ **Dynamic Difficulty Adjustment** | 🎯 **Personalized Learning Paths** |
+| Automatic artifact detection | EEG response within 50ms | Based on 120+ participant validation |
 
 </div>
 
 ---
 
-## 🔌 지원되는 EEG 디바이스
+## 🔌 Supported EEG Devices
 
 <div align="center">
 
-| 디바이스 | 등급 | 연결 방식 |
+| Device | Grade | Connection |
 |:---:|:---:|:---:|
-| **Muse 헤드밴드** | 소비자용 | Bluetooth |
-| **Emotiv 시스템** | 전문가용 | USB/WiFi |
-| **일반 EEG 디바이스** | 연구용 | Lab Streaming Layer |
+| **Muse Headband** | Consumer | Bluetooth |
+| **Emotiv Systems** | Professional | USB/WiFi |
+| **Generic EEG Devices** | Research | Lab Streaming Layer |
 
-**💡 팁**: EEG 디바이스가 없어도 시뮬레이션 모드로 테스트 가능합니다!
+**💡 Tip**: You can test in simulation mode even without an EEG device!
 
 </div>
 
-## 🔧 개발자를 위한 API
+## 🔧 API for Developers
 
 <div align="center">
 
-### 📚 **API 문서**: http://localhost:8000/docs
-### 🔌 **실시간 WebSocket 지원**
-### 🐍 **Python SDK** 커스텀 통합용
+### 📚 **API Documentation**: http://localhost:8000/docs
+### 🔌 **Real-time WebSocket Support**
+### 🐍 **Python SDK** for Custom Integrations
 
 ```python
-# 간단한 API 사용 예시
+# Simple API usage example
 import requests
 
-# 인지 부하 분석
+# Cognitive load analysis
 response = requests.post("http://localhost:8000/api/v1/eeg/analyze",
                         json={"eeg_data": your_eeg_signals})
-result = response.json()  # 예측된 인지 부하 수준 반환
+result = response.json()  # Returns predicted cognitive load level
 ```
 
 </div>
 
 ---
 
-## 🧪 테스트 및 품질 보증
+## 🧪 Testing & Quality Assurance
 
 ```bash
-# Backend 테스트
+# Backend tests
 cd backend && python -m pytest tests/ -v --cov=.
 
-# Frontend 테스트
+# Frontend tests
 cd frontend/web && npm test -- --coverage
 
-# 전체 시스템 통합 테스트
+# Full system integration tests
 docker-compose -f docker-compose.test.yml up --abort-on-container-exit
 ```
 
 ---
 
-## 🎯 왜 이것이 중요한가?
+## 🎯 Why This Matters
 
 <div align="center">
 
-**학습은 개인적입니다. 당신의 뇌는 누구의 뇌와도 다르게 작동합니다.**
+**Learning is personal. Your brain works differently than anyone else's.**
 
-이 플랫폼은 실시간으로 인지 부하를 예측하고 난이도를 조절함으로써 **25-30% 향상된 학습 효율**과 **40% 감소된 좌절감**을 입증했습니다.
+This platform proves that predicting cognitive load and adjusting difficulty in real-time can improve learning efficiency by **25-30%** while reducing frustration by **40%**.
 
-*120+명의 참가자를 대상으로 한 통제된 실험을 통해 수학, 프로그래밍, 언어 학습 분야에서 다양한 실력 수준에 걸쳐 검증되었습니다.*
+*Validated through controlled experiments with 120+ participants across mathematics, programming, and language learning domains at different skill levels.*
 
-**🧠 신경과학 기반 학습의 미래를 경험해보세요!**
+**🧠 Experience the future of neuroscience-based learning!**
 
 </div>
 
 ---
 
-## 🤝 기여하기 <a name="contributing"></a>
+## 🤝 Contributing <a name="contributing"></a>
 
 <div align="center">
 
-### 🌟 **우리는 모든 기여를 환영합니다!**
+### 🌟 **We welcome all contributions!**
 
-| 기여 유형 | 방법 |
+| Contribution Type | How to Contribute |
 |:---:|:---:|
-| 🐛 **버그 리포트** | [Issues](https://github.com/Leviathan-m/ai-eeg-learning-platform/issues) |
-| 💡 **기능 제안** | [Discussions](https://github.com/Leviathan-m/ai-eeg-learning-platform/discussions) |
-| 🔧 **코드 기여** | [Pull Requests](https://github.com/Leviathan-m/ai-eeg-learning-platform/pulls) |
-| 📖 **문서 개선** | [Wiki](https://github.com/Leviathan-m/ai-eeg-learning-platform/wiki) |
+| 🐛 **Bug Reports** | [Issues](https://github.com/Leviathan-m/ai-eeg-learning-platform/issues) |
+| 💡 **Feature Requests** | [Discussions](https://github.com/Leviathan-m/ai-eeg-learning-platform/discussions) |
+| 🔧 **Code Contributions** | [Pull Requests](https://github.com/Leviathan-m/ai-eeg-learning-platform/pulls) |
+| 📖 **Documentation** | [Wiki](https://github.com/Leviathan-m/ai-eeg-learning-platform/wiki) |
 
 </div>
 
-### 🚀 기여 시작하기
+### 🚀 Getting Started with Contributing
 
 ```bash
 # 1. Fork this repository
@@ -308,45 +308,45 @@ git push origin feature/amazing-feature
 # 5. Open a Pull Request
 ```
 
-### 📋 기여 가이드라인
+### 📋 Contribution Guidelines
 
-- **코딩 스타일**: Black (Python), ESLint (JavaScript)
-- **테스트**: 모든 새 기능에 대한 테스트 작성
-- **문서**: 새로운 기능에 대한 문서 업데이트
-- **커밋 메시지**: [Conventional Commits](https://conventionalcommits.org/) 형식 사용
+- **Code Style**: Black (Python), ESLint (JavaScript)
+- **Testing**: Write tests for all new features
+- **Documentation**: Update documentation for new features
+- **Commit Messages**: Use [Conventional Commits](https://conventionalcommits.org/) format
 
 ---
 
-## 🗺️ 로드맵
+## 🗺️ Roadmap
 
 <div align="center">
 
-### 🔮 **향후 개발 계획**
+### 🔮 **Future Development Plans**
 
-- [ ] **모바일 앱 출시** 📱
-- [ ] **더 많은 EEG 디바이스 지원** 🔌
-- [ ] **고급 ML 모델 통합** 🤖
-- [ ] **클라우드 배포 옵션** ☁️
-- [ ] **다국어 지원** 🌍
-- [ ] **교육기관 통합 API** 🏫
+- [ ] **Mobile App Release** 📱
+- [ ] **More EEG Device Support** 🔌
+- [ ] **Advanced ML Model Integration** 🤖
+- [ ] **Cloud Deployment Options** ☁️
+- [ ] **Multi-language Support** 🌍
+- [ ] **Educational Institution API Integration** 🏫
 
 </div>
 
 ---
 
-## 📞 문의 및 지원
+## 📞 Contact & Support
 
-**질문, 협업 제안, 지원이 필요하신가요?**
+**Questions, collaboration proposals, or need support?**
 
-📧 **이메일**: mahzzangg@gmail.com
+📧 **Email**: mahzzangg@gmail.com
 
 ---
 
-## 📜 라이선스
+## 📜 License
 
 <div align="center">
 
-**MIT License** - 개인 및 상업적 사용 모두 무료
+**MIT License** - Free for personal and commercial use
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
@@ -354,20 +354,20 @@ git push origin feature/amazing-feature
 
 ---
 
-## 🔬 연구 기반
+## 🔬 Research Foundation
 
-이 플랫폼은 **"다중 채널 EEG를 활용한 실시간 인지 부하 예측 및 동적 학습 난이도 조절"** 방법론을 구현합니다.
+This platform implements the **"Real-time Cognitive Load Prediction and Dynamic Learning Difficulty Adjustment Using Multi-channel EEG Analysis"** methodology.
 
-**검증**: 수학, 프로그래밍, 언어 학습 분야에서 120+명의 참가자를 대상으로 한 통제된 실험을 통해 검증되었습니다.
+**Validation**: Verified through controlled experiments with 120+ participants across mathematics, programming, and language learning domains.
 
 <div align="center">
 
 ---
 
-**🧠 엄격한 신경과학 연구를 기반으로 차세대 개인 맞춤 학습 시스템을 만들어 갑니다.**
+**🧠 Building the next generation of personalized learning systems based on rigorous neuroscience research.**
 
-⭐ **관심 있으시면 Star 버튼을 눌러주세요!**
+⭐ **If you're interested, please give us a star!**
 
-[⬆️ 맨 위로](#-ai-eeg-learning-platform)
+[⬆️ Back to top](#-ai-eeg-learning-platform)
 
 </div>
