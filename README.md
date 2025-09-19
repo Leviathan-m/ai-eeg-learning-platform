@@ -9,9 +9,9 @@
 ![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=flat-square&logo=fastapi&logoColor=white)
 ![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)
 
-**🧠 뇌파 분석으로 학습 효율을 30% 향상시키는 차세대 개인 맞춤 학습 플랫폼**
+**🧠 Next-generation personalized learning platform that boosts efficiency by 30% through EEG analysis**
 
-[🚀 데모 보기](#demo) • [📖 문서](#documentation) • [🤝 기여하기](#contributing) • [🐛 이슈 보고](#issues)
+[🚀 Demo](#demo) • [📖 Documentation](#documentation) • [🤝 Contributing](#contributing) • [🐛 Issues](#issues)
 
 </div>
 
@@ -19,77 +19,77 @@
 
 ## ✨ What Makes This Special?
 
-🎯 **뇌파로 학습 난이도를 실시간 예측** - 당신이 지치기 전에 미리 난이도를 조절하는 스마트 튜터
+🎯 **Real-time difficulty prediction via EEG** - Smart tutor that adjusts difficulty before you get tired
 
-🧪 **120+명의 참가자로 검증된 연구 결과** - 30% 향상된 학습 효율, 40% 감소된 좌절감
+🧪 **Research validated with 120+ participants** - 30% improved learning efficiency, 40% reduced frustration
 
-⚡ **50ms 미만의 초고속 응답** - 실시간 뇌파 분석으로 즉각적인 난이도 조절
+⚡ **Sub-50ms ultra-fast response** - Instant difficulty adjustments through real-time EEG analysis
 
-🔬 **신경과학 기반 알고리즘** - CNN-LSTM 모델로 85%+ 예측 정확도
+🔬 **Neuroscience-based algorithms** - 85%+ prediction accuracy with CNN-LSTM models
 
 ## 🚀 Key Features
 
 <div align="center">
 
-| 🎯 **실시간 뇌파 분석** | 🔄 **동적 난이도 조절** | 📊 **개인화된 학습 경로** |
+| 🎯 **Real-time EEG Analysis** | 🔄 **Dynamic Difficulty Adjustment** | 📊 **Personalized Learning Paths** |
 |:---:|:---:|:---:|
-| Beta/Alpha/Theta 파 분석 | 50ms 내 난이도 자동 조절 | 120+명 데이터 기반 최적화 |
-| 주의력 수준 실시간 모니터링 | 인지 부하 예측 및 예방 | 신경과학 검증 알고리즘 |
+| Beta/Alpha/Theta wave analysis | Auto-adjustment within 50ms | Optimization based on 120+ participants |
+| Real-time attention monitoring | Cognitive load prediction & prevention | Neuroscience-validated algorithms |
 
 </div>
 
-### 🧠 뇌파 분석 기능
-- **실시간 주의력 추적**: Beta 파로 초점을, Alpha 파로 이완 상태 분석
-- **인지 부하 감지**: Theta 파로 정신적 노력 예측
-- **스트레스 패턴 분석**: Gamma 파로 불안 수준 측정
-- **개인화된 학습 패턴**: 시간에 따른 콘텐츠 유형별 반응 분석
+### 🧠 EEG Analysis Capabilities
+- **Real-time attention tracking**: Focus via Beta waves, relaxation via Alpha waves
+- **Cognitive load detection**: Mental effort prediction through Theta waves
+- **Stress pattern analysis**: Anxiety levels via Gamma wave measurement
+- **Personalized learning patterns**: Response analysis by content type over time
 
-### 🎓 학습 최적화
-- **예측적 난이도 조절**: 지치기 전에 자동으로 쉬운 콘텐츠로 전환
-- **개인 맞춤 학습 경로**: 당신의 뇌파 패턴에 최적화된 커리큘럼
-- **효율성 향상**: 연구 결과 30% 향상된 학습 효율
-- **좌절감 감소**: 40% 감소된 학습 스트레스
+### 🎓 Learning Optimization
+- **Predictive difficulty adjustment**: Auto-switch to easier content before fatigue
+- **Personalized learning paths**: Curriculum optimized for your EEG patterns
+- **Efficiency improvement**: 30% better learning efficiency per research
+- **Reduced frustration**: 40% decrease in learning stress
 
 ---
 
-## 🏃‍♂️ Quick Start (5분만에 시작!)
+## 🏃‍♂️ Quick Start (Get running in 5 minutes!)
 
 <div align="center">
 
-### 🚀 Docker로 한 번에 실행 (추천)
+### 🚀 Run Everything with Docker (Recommended)
 
 ```bash
-# 1. 레포지토리 클론
+# 1. Clone repository
 git clone https://github.com/Leviathan-m/ai-eeg-learning-platform.git
 cd ai-eeg-learning-platform
 
-# 2. Docker로 실행
+# 2. Run with Docker
 docker-compose up -d
 
-# 3. 브라우저에서 확인
-# 🌐 웹 대시보드: http://localhost:3000
-# 🔗 API 문서: http://localhost:8000/docs
+# 3. Open in browser
+# 🌐 Web dashboard: http://localhost:3000
+# 🔗 API docs: http://localhost:8000/docs
 ```
 
-**🎉 끝! EEG 디바이스를 연결하고 개인 맞춤 학습을 경험해보세요!**
+**🎉 Done! Connect an EEG device and experience personalized learning!**
 
 </div>
 
-## 👥 실제 사용 사례
+## 👥 Real-world Use Cases
 
 <div align="center">
 
-### 🎓 **학생들을 위한**
-수학 문제풀이, 프로그래밍 학습, 외국어 공부 시 개인별 인지 한계를 학습합니다. 120+명의 참가자 데이터를 기반으로 정신적 과부하가 예상되면 자동으로 쉬운 콘텐츠로 전환하여 좌절감을 방지하고 기억력을 향상시킵니다.
+### 🎓 **For Students**
+Learn your personal cognitive limits during math problem-solving, programming, or language learning. Based on 120+ participant data, automatically switch to easier content when mental overload is predicted, preventing frustration and improving memory retention.
 
-### 👨‍🏫 **교육자들을 위한**
-서로 다른 교수법이 개별 학생들의 인지 부하에 미치는 영향을 정확히 파악하세요. 데이터 기반 통찰로 개인 맞춤 교육을 실현하며, 실험적 검증 결과 서로 다른 실력 수준에서 유의미한 학습 성과 향상을 보여줍니다.
+### 👨‍🏫 **For Educators**
+Accurately assess how different teaching methods affect individual students' cognitive load. Implement personalized education with data-driven insights, with experimental validation showing meaningful learning outcome improvements across different skill levels.
 
-### 🔬 **연구자들을 위한**
-자동 아티팩트 감지와 검증된 신호 품질 평가가 포함된 전문가급 EEG 분석에 접근하세요. 인지과학 실험과 신경과학 연구에 완벽합니다.
+### 🔬 **For Researchers**
+Access professional-grade EEG analysis with automatic artifact detection and validated signal quality assessment. Perfect for cognitive science experiments and neuroscience research.
 
-### 💼 **전문가들을 위한**
-실시간 인지 부하 모니터링으로 새로운 기술을 더 빠르게 습득하세요. 기술 교육이나 전문성 개발 시 검증된 신경과학 원리로 학습 곡선을 최적화합니다.
+### 💼 **For Professionals**
+Master new skills faster with real-time cognitive load monitoring. Optimize learning curves using validated neuroscience principles for technical training or professional development.
 
 </div>
 
@@ -99,41 +99,41 @@ docker-compose up -d
 
 <div align="center">
 
-| 실시간 대시보드 | 뇌파 분석 그래프 | 개인화된 학습 경로 |
+| Live Dashboard | EEG Analysis Graph | Personalized Learning Path |
 |:---:|:---:|:---:|
 | ![Dashboard](https://via.placeholder.com/300x200/4A90E2/FFFFFF?text=Live+Dashboard) | ![EEG Analysis](https://via.placeholder.com/300x200/50E3C2/FFFFFF?text=EEG+Analysis) | ![Learning Path](https://via.placeholder.com/300x200/F5A623/FFFFFF?text=Learning+Path) |
-| 실시간 주의력과 인지 부하 모니터링 | 전문가급 뇌파 신호 분석 | AI 기반 맞춤 학습 추천 |
+| Real-time attention & cognitive load monitoring | Professional-grade EEG signal analysis | AI-powered personalized learning recommendations |
 
 </div>
 
-## 🧪 작동 원리
+## 🧪 How It Works
 
 <div align="center">
 
 ```mermaid
 graph TD
-    A[EEG 디바이스] --> B[실시간 뇌파 수집]
-    B --> C[신호 전처리 & 아티팩트 제거]
-    C --> D[CNN-LSTM 모델 분석]
-    D --> E[인지 부하 예측 85%+ 정확도]
-    E --> F{부하 수준}
-    F -->|높음| G[난이도 ↓ 쉬운 콘텐츠]
-    F -->|적정| H[현재 난이도 유지]
-    F -->|낮음| I[난이도 ↑ 도전적 콘텐츠]
-    G --> J[개인화된 학습 경험]
+    A[EEG Device] --> B[Real-time EEG Collection]
+    B --> C[Signal Preprocessing & Artifact Removal]
+    C --> D[CNN-LSTM Model Analysis]
+    D --> E[Cognitive Load Prediction 85%+ Accuracy]
+    E --> F{Load Level}
+    F -->|High| G[Difficulty ↓ Easy Content]
+    F -->|Optimal| H[Maintain Current Difficulty]
+    F -->|Low| I[Difficulty ↑ Challenging Content]
+    G --> J[Personalized Learning Experience]
     H --> J
     I --> J
 ```
 
 </div>
 
-### 🧠 뇌파 분석 알고리즘
-- **주의력 수준**: Beta 파로 초점 상태, Alpha 파로 이완 상태 분석
-- **인지 부하**: Theta 파로 정신적 노력 감지 및 과부하 예측
-- **스트레스 패턴**: Gamma 파로 불안 수준 분석
-- **학습 패턴**: 시간에 따른 다양한 콘텐츠 유형별 반응 분석
+### 🧠 EEG Analysis Algorithm
+- **Attention levels**: Focus state via Beta waves, relaxation via Alpha waves
+- **Cognitive load**: Mental effort detection and overload prediction via Theta waves
+- **Stress patterns**: Anxiety level analysis via Gamma waves
+- **Learning patterns**: Response analysis by content type over time
 
-120+명의 참가자 데이터를 학습한 CNN-LSTM 모델이 뇌파 패턴(theta/alpha 비율, gamma 파워, 신경 연결성)을 분석하여 **85%+ 정확도**로 인지 부하를 예측하고 **50ms 미만**으로 응답합니다.
+CNN-LSTM models trained on 120+ participant data analyze EEG patterns (theta/alpha ratios, gamma power, neural connectivity) to predict cognitive load with **85%+ accuracy** and respond in **under 50ms**.
 
 ---
 
@@ -141,28 +141,28 @@ graph TD
 
 <div align="center">
 
-| 컴포넌트 | 기술 | 설명 |
+| Component | Technology | Description |
 |:---:|:---:|:---:|
-| **Backend** | ![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=flat&logo=fastapi&logoColor=white) | 고성능 비동기 API 서버 |
-| **Frontend** | ![React](https://img.shields.io/badge/React-20232A?style=flat&logo=react&logoColor=61DAFB) | 반응형 웹 인터페이스 |
-| **Database** | ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=flat&logo=postgresql&logoColor=white) | 안정적인 데이터 저장 |
-| **Cache** | ![Redis](https://img.shields.io/badge/Redis-DC382D?style=flat&logo=redis&logoColor=white) | 실시간 캐싱 |
-| **AI/ML** | ![PyTorch](https://img.shields.io/badge/PyTorch-EE4C2C?style=flat&logo=pytorch&logoColor=white) | CNN-LSTM 인지 부하 예측 |
-| **Container** | ![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat&logo=docker&logoColor=white) | 컨테이너화된 배포 |
+| **Backend** | ![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=flat&logo=fastapi&logoColor=white) | High-performance async API server |
+| **Frontend** | ![React](https://img.shields.io/badge/React-20232A?style=flat&logo=react&logoColor=61DAFB) | Responsive web interface |
+| **Database** | ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=flat&logo=postgresql&logoColor=white) | Reliable data storage |
+| **Cache** | ![Redis](https://img.shields.io/badge/Redis-DC382D?style=flat&logo=redis&logoColor=white) | Real-time caching |
+| **AI/ML** | ![PyTorch](https://img.shields.io/badge/PyTorch-EE4C2C?style=flat&logo=pytorch&logoColor=white) | CNN-LSTM cognitive load prediction |
+| **Container** | ![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat&logo=docker&logoColor=white) | Containerized deployment |
 
 </div>
 
-### 🔬 핵심 기술 특징
-- **초고속 예측**: 50ms 미만의 응답 시간
-- **높은 정확도**: 85%+ 인지 부하 예측 정확도
-- **실시간 처리**: 다중 채널 EEG 실시간 분석
-- **신경과학 검증**: 120+명 참가자 데이터 기반
+### 🔬 Core Technology Features
+- **Ultra-fast prediction**: Response time under 50ms
+- **High accuracy**: 85%+ cognitive load prediction accuracy
+- **Real-time processing**: Multi-channel EEG real-time analysis
+- **Neuroscience validation**: Based on 120+ participant data
 
-## 💻 설치 및 실행
+## 💻 Installation & Setup
 
 <div align="center">
 
-### 🚀 **옵션 1: Docker로 한 번에 (추천)**
+### 🚀 **Option 1: Run Everything with Docker (Recommended)**
 
 ```bash
 # 1. 레포지토리 클론
@@ -176,7 +176,7 @@ docker-compose up -d
 docker-compose ps
 ```
 
-### 🔧 **옵션 2: 수동 설치**
+### 🔧 **Option 2: Manual Setup**
 
 ```bash
 # Backend 설정
