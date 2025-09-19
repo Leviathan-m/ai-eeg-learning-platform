@@ -60,7 +60,7 @@
 
 ```bash
 # 1. 레포지토리 클론
-git clone https://github.com/your-username/ai-eeg-learning-platform.git
+git clone https://github.com/Leviathan-m/ai-eeg-learning-platform.git
 cd ai-eeg-learning-platform
 
 # 2. Docker로 실행
@@ -166,7 +166,7 @@ graph TD
 
 ```bash
 # 1. 레포지토리 클론
-git clone https://github.com/your-username/ai-eeg-learning-platform.git
+git clone https://github.com/Leviathan-m/ai-eeg-learning-platform.git
 cd ai-eeg-learning-platform
 
 # 2. Docker로 모든 서비스 실행
@@ -285,10 +285,10 @@ docker-compose -f docker-compose.test.yml up --abort-on-container-exit
 
 | 기여 유형 | 방법 |
 |:---:|:---:|
-| 🐛 **버그 리포트** | [Issues](https://github.com/your-username/ai-eeg-learning-platform/issues) |
-| 💡 **기능 제안** | [Discussions](https://github.com/your-username/ai-eeg-learning-platform/discussions) |
-| 🔧 **코드 기여** | [Pull Requests](https://github.com/your-username/ai-eeg-learning-platform/pulls) |
-| 📖 **문서 개선** | [Wiki](https://github.com/your-username/ai-eeg-learning-platform/wiki) |
+| 🐛 **버그 리포트** | [Issues](https://github.com/Leviathan-m/ai-eeg-learning-platform/issues) |
+| 💡 **기능 제안** | [Discussions](https://github.com/Leviathan-m/ai-eeg-learning-platform/discussions) |
+| 🔧 **코드 기여** | [Pull Requests](https://github.com/Leviathan-m/ai-eeg-learning-platform/pulls) |
+| 📖 **문서 개선** | [Wiki](https://github.com/Leviathan-m/ai-eeg-learning-platform/wiki) |
 
 </div>
 
