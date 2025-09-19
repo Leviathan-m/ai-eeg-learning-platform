@@ -9,9 +9,67 @@
 ![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=flat-square&logo=fastapi&logoColor=white)
 ![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)
 
-**🧠 Next-generation personalized learning platform that boosts efficiency by 30% through EEG analysis**
+**A neuroscience-powered adaptive learning platform that uses real-time EEG analysis to personalize education, improving efficiency by 30% through cognitive load prediction.**
 
-[🚀 Demo](#demo) • [📖 Documentation](#documentation) • [🤝 Contributing](#contributing) • [🐛 Issues](#issues)
+[🚀 Quick Start](#quick-start) • [📖 API Docs](#api-documentation) • [🤝 Contributing](#contributing) • [🐛 Issues](#issues)
+
+</div>
+
+---
+
+## 📋 Project Overview
+
+This platform revolutionizes personalized learning by analyzing brain signals to predict cognitive load and dynamically adjust content difficulty in real-time. Built on rigorous neuroscience research with 120+ participants, it delivers 30% better learning efficiency and 40% less frustration through AI-powered adaptive education.
+
+**Key Innovation**: Real-time EEG analysis with <50ms response time using CNN-LSTM models achieving 85%+ prediction accuracy.
+
+---
+
+## 🏗️ System Architecture
+
+<div align="center">
+
+```mermaid
+graph TB
+    subgraph "Client Layer"
+        A[Web Dashboard<br/>React + Material-UI]
+        B[EEG Device<br/>Muse/Emotiv/Generic]
+    end
+
+    subgraph "API Layer"
+        C[FastAPI Server<br/>REST/WebSocket APIs]
+        D[Authentication<br/>JWT/OAuth]
+        E[Rate Limiting<br/>Redis Cache]
+    end
+
+    subgraph "Processing Layer"
+        F[EEG Processor<br/>Signal Filtering]
+        G[CNN-LSTM Model<br/>Cognitive Load Prediction]
+        H[Dynamic Difficulty<br/>Algorithm Engine]
+    end
+
+    subgraph "Data Layer"
+        I[(PostgreSQL<br/>User Data)]
+        J[(Redis<br/>Session Cache)]
+        K[(ML Models<br/>PyTorch)]
+    end
+
+    A --> C
+    B --> F
+    C --> D
+    C --> E
+    F --> G
+    G --> H
+    H --> C
+    C --> I
+    C --> J
+    G --> K
+
+    style A fill:#e1f5fe
+    style C fill:#f3e5f5
+    style F fill:#e8f5e8
+    style I fill:#fff3e0
+```
 
 </div>
 
@@ -52,28 +110,65 @@
 
 ---
 
-## 🏃‍♂️ Quick Start (Get running in 5 minutes!)
+## 🚀 Quick Start <a name="quick-start"></a>
 
-<div align="center">
+### Prerequisites
+- **Docker & Docker Compose** (recommended)
+- **Python 3.11+** (for manual setup)
+- **Node.js 18+** (for frontend development)
+- **EEG Device** (optional - simulation mode available)
 
-### 🚀 Run Everything with Docker (Recommended)
+### 🚀 Option 1: Docker (Recommended - 5 minutes)
 
 ```bash
 # 1. Clone repository
 git clone https://github.com/Leviathan-m/ai-eeg-learning-platform.git
 cd ai-eeg-learning-platform
 
-# 2. Run with Docker
+# 2. Start all services
 docker-compose up -d
 
-# 3. Open in browser
-# 🌐 Web dashboard: http://localhost:3000
-# 🔗 API docs: http://localhost:8000/docs
+# 3. Check services are running
+docker-compose ps
+
+# 4. Open in browser
+# 🌐 Web Dashboard: http://localhost:3000
+# 🔗 API Documentation: http://localhost:8000/docs
+# 🔗 Health Check: http://localhost:8000/health
 ```
 
-**🎉 Done! Connect an EEG device and experience personalized learning!**
+**🎉 Ready! Connect an EEG device or use simulation mode.**
 
-</div>
+### 🔧 Option 2: Manual Setup
+
+```bash
+# Backend setup
+cd backend
+python -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
+pip install -r requirements.txt
+uvicorn main:app --reload --host 0.0.0.0 --port 8000
+
+# Frontend setup (new terminal)
+cd frontend/web
+npm install --legacy-peer-deps
+npm start
+```
+
+### 🧪 Testing the Setup
+
+```bash
+# Health check
+curl http://localhost:8000/health
+
+# API documentation
+open http://localhost:8000/docs
+
+# Test EEG analysis endpoint
+curl -X POST "http://localhost:8000/api/v1/eeg/analyze" \
+     -H "Content-Type: application/json" \
+     -d '{"eeg_data": [1.0, 2.0, 3.0]}'
+```
 
 ## 👥 Real-world Use Cases
 
@@ -224,25 +319,110 @@ npm start
 
 </div>
 
-## 🔧 API for Developers
+## 📖 API Documentation <a name="api-documentation"></a>
 
 <div align="center">
 
-### 📚 **API Documentation**: http://localhost:8000/docs
-### 🔌 **Real-time WebSocket Support**
-### 🐍 **Python SDK** for Custom Integrations
-
-```python
-# Simple API usage example
-import requests
-
-# Cognitive load analysis
-response = requests.post("http://localhost:8000/api/v1/eeg/analyze",
-                        json={"eeg_data": your_eeg_signals})
-result = response.json()  # Returns predicted cognitive load level
-```
+### 📚 **Interactive API Docs**: http://localhost:8000/docs
+### 🔌 **Real-time WebSocket Support** for live EEG streaming
+### 🐍 **Python SDK** available for custom integrations
 
 </div>
+
+### 🔗 Key API Endpoints
+
+| Endpoint | Method | Description | Example |
+|:---------|:-------|:------------|:--------|
+| `/health` | GET | Service health check | `curl http://localhost:8000/health` |
+| `/api/v1/eeg/analyze` | POST | Analyze EEG data for cognitive load | See below |
+| `/api/v1/users/{user_id}/progress` | GET | Get user learning progress | - |
+| `/api/v1/learning/recommend` | POST | Get personalized difficulty recommendation | - |
+| `/ws/eeg/stream` | WebSocket | Real-time EEG data streaming | - |
+
+### 📝 API Usage Examples
+
+#### Cognitive Load Analysis
+```python
+import requests
+
+# Single EEG sample analysis
+response = requests.post(
+    "http://localhost:8000/api/v1/eeg/analyze",
+    json={
+        "eeg_data": [1.2, -0.5, 2.1, 0.8],  # 4-channel EEG sample
+        "sampling_rate": 256,
+        "user_id": "user123"
+    }
+)
+
+result = response.json()
+print(f"Cognitive Load: {result['cognitive_load']}")
+print(f"Recommended Difficulty: {result['recommended_difficulty']}")
+```
+
+#### WebSocket Real-time Streaming
+```javascript
+// Frontend JavaScript example
+const ws = new WebSocket('ws://localhost:8000/ws/eeg/stream');
+
+ws.onmessage = (event) => {
+    const data = JSON.parse(event.data);
+    updateDashboard(data.cognitive_load, data.attention_level);
+};
+```
+
+### 📋 Data Format Requirements
+
+#### EEG Data Input
+- **Format**: JSON array of floats
+- **Channels**: 1-32 channels supported
+- **Sampling Rate**: 128-512 Hz recommended
+- **Data Type**: Raw voltage values (μV)
+- **Length**: 1-10 seconds per sample
+
+#### Response Format
+```json
+{
+  "cognitive_load": 0.75,
+  "attention_level": 0.82,
+  "stress_level": 0.45,
+  "recommended_difficulty": "medium",
+  "confidence": 0.91,
+  "processing_time_ms": 45
+}
+```
+
+### 🗂️ Model & Data Requirements
+
+#### Model Specifications
+- **Architecture**: CNN-LSTM neural network
+- **Input**: Multi-channel EEG time series
+- **Output**: Cognitive load score (0.0-1.0)
+- **Accuracy**: 85%+ validation accuracy
+- **Response Time**: <50ms inference time
+
+#### Training Data Requirements
+- **Participants**: 120+ diverse user profiles
+- **EEG Channels**: 4+ channels minimum
+- **Session Length**: 15-60 minutes per participant
+- **Tasks**: Mathematics, programming, language learning
+- **Labels**: Self-reported difficulty levels
+
+#### Environment Variables
+```bash
+# Required for production
+DATABASE_URL=postgresql://user:pass@host:5432/db
+REDIS_URL=redis://host:6379
+SECRET_KEY=your-secret-key-here
+EEG_MODEL_PATH=/path/to/models
+```
+
+### 🔒 Security & Privacy
+
+- **Data Encryption**: All EEG data encrypted in transit and at rest
+- **Anonymization**: Personal identifiers removed before processing
+- **GDPR Compliance**: Data processing with explicit user consent
+- **Access Control**: JWT-based authentication for API endpoints
 
 ---
 
