@@ -239,6 +239,8 @@ Thumbs.db
 
 # Docker
 .dockerignore
+api_docs.html
+scripts/*.log
 
 # Database
 *.db
