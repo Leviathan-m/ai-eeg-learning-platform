@@ -7,7 +7,7 @@ and user learning patterns.
 Author: AI-EEG Learning Platform Team
 """
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Any
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, Field
