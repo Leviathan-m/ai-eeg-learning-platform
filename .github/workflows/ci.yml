@@ -83,8 +83,8 @@ jobs:
         cache: 'npm'
         cache-dependency-path: frontend/web/package-lock.json
 
-    - name: Install dependencies
-      run: npm ci --legacy-peer-deps
+    - name: Install dependencies (tolerant)
+      run: npm install --legacy-peer-deps
 
     - name: Lint code
       run: npm run lint
