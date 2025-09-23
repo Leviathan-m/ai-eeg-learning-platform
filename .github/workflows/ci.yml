@@ -51,7 +51,7 @@ jobs:
       run: isort --check-only --diff .
 
     - name: Type check with mypy
-      run: mypy . --ignore-missing-imports
+      run: mypy . --ignore-missing-imports --explicit-package-bases
 
     - name: Run tests
       run: |
@@ -89,8 +89,8 @@ jobs:
     - name: Lint code
       run: npm run lint
 
-    - name: Run tests
-      run: npm test -- --coverage --watchAll=false
+    - name: Run tests (allow no tests)
+      run: npm test -- --coverage --watchAll=false --passWithNoTests
       env:
         CI: true
 

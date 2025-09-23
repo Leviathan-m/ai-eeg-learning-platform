@@ -181,7 +181,10 @@ dist
 
 # Gatsby files
 .cache/
+# Do not ignore CRA public folder
 public
+!frontend/web/public/
+!frontend/web/public/**
 
 # Storybook build outputs
 .out
