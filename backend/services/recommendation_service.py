@@ -725,16 +725,16 @@ class RecommendationService:
                     cognitive_load_level in ["very_low", "low"]
                     and content_difficulty >= 4
                 ):
-                    content_copy["cognitive_boost"] = (
-                        0.2  # 20% boost for challenging content when load is low
-                    )
+                    content_copy[
+                        "cognitive_boost"
+                    ] = 0.2  # 20% boost for challenging content when load is low
                 elif (
                     cognitive_load_level in ["high", "very_high"]
                     and content_difficulty <= 2
                 ):
-                    content_copy["cognitive_boost"] = (
-                        0.15  # 15% boost for easy content when load is high
-                    )
+                    content_copy[
+                        "cognitive_boost"
+                    ] = 0.15  # 15% boost for easy content when load is high
 
                 filtered_content.append(content_copy)
 
