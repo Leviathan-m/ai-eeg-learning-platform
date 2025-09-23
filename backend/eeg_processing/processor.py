@@ -60,7 +60,7 @@ class CircularBuffer:
             EEG data with shape (channels, size)
         """
         if not self.is_full:
-            return self.buffer[:, :self.index]
+            return self.buffer[:, : self.index]
         return self.buffer
 
     def get_latest_samples(self, n_samples: int) -> np.ndarray:
@@ -74,20 +74,19 @@ class CircularBuffer:
             Latest EEG samples with shape (channels, n_samples)
         """
         if not self.is_full and self.index < n_samples:
-            return self.buffer[:, :self.index]
+            return self.buffer[:, : self.index]
 
         data = self.buffer
         if not self.is_full:
-            return data[:, :self.index]
+            return data[:, : self.index]
 
         # Handle wrap-around for circular buffer
         if self.index >= n_samples:
-            return data[:, self.index - n_samples:self.index]
+            return data[:, self.index - n_samples : self.index]
         else:
-            return np.concatenate([
-                data[:, -(n_samples - self.index):],
-                data[:, :self.index]
-            ], axis=1)
+            return np.concatenate(
+                [data[:, -(n_samples - self.index) :], data[:, : self.index]], axis=1
+            )
 
     def clear(self) -> None:
         """Clear the buffer."""
@@ -114,7 +113,7 @@ class EEGProcessor:
         self,
         sampling_rate: int = 256,
         channels: int = 14,  # Emotiv EPOC+ standard
-        buffer_size: int = 1024
+        buffer_size: int = 1024,
     ):
         """
         Initialize advanced EEG processor with research-validated parameters.
@@ -130,22 +129,39 @@ class EEGProcessor:
 
         # Research-validated frequency bands (Hz)
         self.frequency_bands = {
-            'delta': (0.5, 4),
-            'theta': (4, 8),      # Cognitive load indicator
-            'alpha': (8, 12),     # Relaxation/attention marker
-            'beta': (12, 30),     # Active thinking indicator
-            'gamma': (30, 50)     # Stress/high cognitive load marker
+            "delta": (0.5, 4),
+            "theta": (4, 8),  # Cognitive load indicator
+            "alpha": (8, 12),  # Relaxation/attention marker
+            "beta": (12, 30),  # Active thinking indicator
+            "gamma": (30, 50),  # Stress/high cognitive load marker
         }
 
         # Emotiv EPOC+ channel mapping (research standard)
         self.channel_mapping = {
-            0: 'AF3', 1: 'F7', 2: 'F3', 3: 'FC5', 4: 'T7', 5: 'P7', 6: 'O1',
-            7: 'O2', 8: 'P8', 9: 'T8', 10: 'FC6', 11: 'F4', 12: 'F8', 13: 'AF4'
+            0: "AF3",
+            1: "F7",
+            2: "F3",
+            3: "FC5",
+            4: "T7",
+            5: "P7",
+            6: "O1",
+            7: "O2",
+            8: "P8",
+            9: "T8",
+            10: "FC6",
+            11: "F4",
+            12: "F8",
+            13: "AF4",
         }
 
         # Frontal-parietal connectivity pairs (research-validated)
         self.connectivity_pairs = [
-            (0, 6), (1, 5), (2, 8), (3, 9), (4, 10), (11, 13)  # AF3-O1, F7-P7, etc.
+            (0, 6),
+            (1, 5),
+            (2, 8),
+            (3, 9),
+            (4, 10),
+            (11, 13),  # AF3-O1, F7-P7, etc.
         ]
 
         # Quality assessment parameters (research-calibrated)
@@ -173,12 +189,12 @@ class EEGProcessor:
         """Initialize digital filters for signal processing."""
         # Bandpass filter for EEG (1-50 Hz)
         self.b_bp, self.a_bp = signal.butter(
-            4, [1/self.nyquist, 50/self.nyquist], btype='band'
+            4, [1 / self.nyquist, 50 / self.nyquist], btype="band"
         )
 
         # Notch filter for power line interference
         self.b_notch, self.a_notch = signal.iirnotch(
-            self.notch_freq/self.nyquist, Q=30
+            self.notch_freq / self.nyquist, Q=30
         )
 
     async def process_sample(self, sample: Union[List[float], np.ndarray]) -> Dict:
@@ -214,10 +230,10 @@ class EEGProcessor:
         # Calculate processing time
         processing_time = (time.time() - start_time) * 1000  # ms
         self.processing_times.append(processing_time)
-        features['processing_time'] = processing_time
+        features["processing_time"] = processing_time
 
         # Add timestamp
-        features['timestamp'] = time.time()
+        features["timestamp"] = time.time()
 
         return features
 
@@ -250,12 +266,12 @@ class EEGProcessor:
             quality_metrics = self._assess_signal_quality(processed_data)
 
             return {
-                'band_powers': band_powers,
-                'attention_score': attention_score,
-                'stress_level': stress_level,
-                'cognitive_load': cognitive_load,
-                'quality_metrics': quality_metrics,
-                'signal_quality': quality_metrics['overall_quality']
+                "band_powers": band_powers,
+                "attention_score": attention_score,
+                "stress_level": stress_level,
+                "cognitive_load": cognitive_load,
+                "quality_metrics": quality_metrics,
+                "signal_quality": quality_metrics["overall_quality"],
             }
 
         except Exception as e:
@@ -276,15 +292,11 @@ class EEGProcessor:
 
         # Apply notch filter for power line interference
         for ch in range(self.channels):
-            processed[ch] = signal.filtfilt(
-                self.b_notch, self.a_notch, processed[ch]
-            )
+            processed[ch] = signal.filtfilt(self.b_notch, self.a_notch, processed[ch])
 
         # Apply bandpass filter
         for ch in range(self.channels):
-            processed[ch] = signal.filtfilt(
-                self.b_bp, self.a_bp, processed[ch]
-            )
+            processed[ch] = signal.filtfilt(self.b_bp, self.a_bp, processed[ch])
 
         # Remove artifacts using statistical thresholding
         processed = self._remove_artifacts(processed)
@@ -318,9 +330,7 @@ class EEGProcessor:
             mask = z_scores > 3
             if np.any(mask):
                 channel_data[mask] = np.interp(
-                    np.where(mask)[0],
-                    np.where(~mask)[0],
-                    channel_data[~mask]
+                    np.where(mask)[0], np.where(~mask)[0], channel_data[~mask]
                 )
 
         return cleaned
@@ -351,8 +361,8 @@ class EEGProcessor:
                 fs=self.fs,
                 nperseg=256,  # 1-second window at 256Hz
                 noverlap=128,  # 50% overlap
-                nfft=512,      # Zero-padding for better frequency resolution
-                scaling='density'
+                nfft=512,  # Zero-padding for better frequency resolution
+                scaling="density",
             )
 
             # Calculate power for each frequency band (research-validated ranges)
@@ -371,7 +381,9 @@ class EEGProcessor:
                     # Store channel name mapping for research analysis
                     if ch < len(self.channel_mapping):
                         channel_name = self.channel_mapping[ch]
-                        band_powers[f"{band_name}_power_{channel_name}"] = float(band_power)
+                        band_powers[f"{band_name}_power_{channel_name}"] = float(
+                            band_power
+                        )
 
         # Calculate research-validated averages and ratios
         for band_name in self.frequency_bands.keys():
@@ -387,7 +399,8 @@ class EEGProcessor:
             frontal_channels = [0, 1, 2, 11, 12, 13]  # AF3, F7, F3, F4, F8, AF4
             frontal_powers = [
                 band_powers.get(f"{band_name}_power_ch{ch+1}", 0)
-                for ch in frontal_channels if ch < self.channels
+                for ch in frontal_channels
+                if ch < self.channels
             ]
             if frontal_powers:
                 band_powers[f"{band_name}_power_frontal_avg"] = np.mean(frontal_powers)
@@ -396,10 +409,13 @@ class EEGProcessor:
             parietal_channels = [5, 6, 7, 8]  # P7, O1, O2, P8
             parietal_powers = [
                 band_powers.get(f"{band_name}_power_ch{ch+1}", 0)
-                for ch in parietal_channels if ch < self.channels
+                for ch in parietal_channels
+                if ch < self.channels
             ]
             if parietal_powers:
-                band_powers[f"{band_name}_power_parietal_avg"] = np.mean(parietal_powers)
+                band_powers[f"{band_name}_power_parietal_avg"] = np.mean(
+                    parietal_powers
+                )
 
         # Calculate research-validated ratios
         band_powers.update(self._calculate_research_ratios(band_powers))
@@ -435,34 +451,47 @@ class EEGProcessor:
                 # Calculate Pearson correlation coefficient
                 correlation = np.corrcoef(data[ch1], data[ch2])[0, 1]
 
-                pair_name = f"{self.channel_mapping.get(ch1, f'CH{ch1+1}')}_" \
-                           f"{self.channel_mapping.get(ch2, f'CH{ch2+1}')}"
+                pair_name = (
+                    f"{self.channel_mapping.get(ch1, f'CH{ch1+1}')}_"
+                    f"{self.channel_mapping.get(ch2, f'CH{ch2+1}')}"
+                )
 
-                connectivity_features[f'connectivity_{pair_name}'] = float(correlation)
+                connectivity_features[f"connectivity_{pair_name}"] = float(correlation)
 
                 # Calculate coherence in different frequency bands
-                for band_name in ['theta', 'alpha', 'beta']:
-                    coherence = self._calculate_coherence(data[ch1], data[ch2], band_name)
-                    connectivity_features[f'coherence_{band_name}_{pair_name}'] = float(coherence)
+                for band_name in ["theta", "alpha", "beta"]:
+                    coherence = self._calculate_coherence(
+                        data[ch1], data[ch2], band_name
+                    )
+                    connectivity_features[f"coherence_{band_name}_{pair_name}"] = float(
+                        coherence
+                    )
 
         # Calculate average connectivity measures
-        connectivity_values = [v for k, v in connectivity_features.items() if k.startswith('connectivity_')]
+        connectivity_values = [
+            v for k, v in connectivity_features.items() if k.startswith("connectivity_")
+        ]
         if connectivity_values:
-            connectivity_features['connectivity_avg'] = np.mean(connectivity_values)
-            connectivity_features['connectivity_std'] = np.std(connectivity_values)
+            connectivity_features["connectivity_avg"] = np.mean(connectivity_values)
+            connectivity_features["connectivity_std"] = np.std(connectivity_values)
 
         # Calculate coherence averages by band
-        for band_name in ['theta', 'alpha', 'beta']:
+        for band_name in ["theta", "alpha", "beta"]:
             coherence_values = [
-                v for k, v in connectivity_features.items()
-                if k.startswith(f'coherence_{band_name}_')
+                v
+                for k, v in connectivity_features.items()
+                if k.startswith(f"coherence_{band_name}_")
             ]
             if coherence_values:
-                connectivity_features[f'coherence_{band_name}_avg'] = np.mean(coherence_values)
+                connectivity_features[f"coherence_{band_name}_avg"] = np.mean(
+                    coherence_values
+                )
 
         return connectivity_features
 
-    def _calculate_coherence(self, signal1: np.ndarray, signal2: np.ndarray, band: str) -> float:
+    def _calculate_coherence(
+        self, signal1: np.ndarray, signal2: np.ndarray, band: str
+    ) -> float:
         """
         Calculate coherence between two signals in a specific frequency band.
 
@@ -480,10 +509,7 @@ class EEGProcessor:
 
             # Calculate cross-spectral density
             freqs, csd = signal.csd(
-                signal1, signal2,
-                fs=self.fs,
-                nperseg=256,
-                noverlap=128
+                signal1, signal2, fs=self.fs, nperseg=256, noverlap=128
             )
 
             # Find frequency indices for the band
@@ -497,10 +523,14 @@ class EEGProcessor:
                 return 0.0
 
         except Exception as e:
-            self.logger.warning(f"Coherence calculation failed for {band} band", error=str(e))
+            self.logger.warning(
+                f"Coherence calculation failed for {band} band", error=str(e)
+            )
             return 0.0
 
-    def _calculate_research_ratios(self, band_powers: Dict[str, float]) -> Dict[str, float]:
+    def _calculate_research_ratios(
+        self, band_powers: Dict[str, float]
+    ) -> Dict[str, float]:
         """
         Calculate research-validated power ratios for cognitive load assessment.
 
@@ -515,48 +545,52 @@ class EEGProcessor:
         ratios = {}
 
         # Theta/Alpha ratio - primary cognitive load indicator (research-validated)
-        theta_avg = band_powers.get('theta_power_avg', 0)
-        alpha_avg = band_powers.get('alpha_power_avg', 0)
+        theta_avg = band_powers.get("theta_power_avg", 0)
+        alpha_avg = band_powers.get("alpha_power_avg", 0)
 
         if alpha_avg > 0:
-            ratios['theta_alpha_ratio'] = theta_avg / alpha_avg
+            ratios["theta_alpha_ratio"] = theta_avg / alpha_avg
         else:
-            ratios['theta_alpha_ratio'] = 0.0
+            ratios["theta_alpha_ratio"] = 0.0
 
         # Frontal Theta/Alpha ratio (research focus)
-        theta_frontal = band_powers.get('theta_power_frontal_avg', 0)
-        alpha_frontal = band_powers.get('alpha_power_frontal_avg', 0)
+        theta_frontal = band_powers.get("theta_power_frontal_avg", 0)
+        alpha_frontal = band_powers.get("alpha_power_frontal_avg", 0)
 
         if alpha_frontal > 0:
-            ratios['theta_alpha_ratio_frontal'] = theta_frontal / alpha_frontal
+            ratios["theta_alpha_ratio_frontal"] = theta_frontal / alpha_frontal
         else:
-            ratios['theta_alpha_ratio_frontal'] = 0.0
+            ratios["theta_alpha_ratio_frontal"] = 0.0
 
         # Beta/Gamma ratio - stress indicator (research-validated)
-        beta_avg = band_powers.get('beta_power_avg', 0)
-        gamma_avg = band_powers.get('gamma_power_avg', 0)
+        beta_avg = band_powers.get("beta_power_avg", 0)
+        gamma_avg = band_powers.get("gamma_power_avg", 0)
 
         if gamma_avg > 0:
-            ratios['beta_gamma_ratio'] = beta_avg / gamma_avg
+            ratios["beta_gamma_ratio"] = beta_avg / gamma_avg
         else:
-            ratios['beta_gamma_ratio'] = 0.0
+            ratios["beta_gamma_ratio"] = 0.0
 
         # Alpha/Beta ratio - attention indicator
         if beta_avg > 0:
-            ratios['alpha_beta_ratio'] = alpha_avg / beta_avg
+            ratios["alpha_beta_ratio"] = alpha_avg / beta_avg
         else:
-            ratios['alpha_beta_ratio'] = 0.0
+            ratios["alpha_beta_ratio"] = 0.0
 
         # Gamma power relative to total power (stress marker)
-        total_power = sum([
-            band_powers.get(f'{band}_power_avg', 0)
-            for band in ['delta', 'theta', 'alpha', 'beta', 'gamma']
-        ])
+        total_power = sum(
+            [
+                band_powers.get(f"{band}_power_avg", 0)
+                for band in ["delta", "theta", "alpha", "beta", "gamma"]
+            ]
+        )
 
         if total_power > 0:
-            ratios['gamma_power_relative'] = band_powers.get('gamma_power_avg', 0) / total_power
+            ratios["gamma_power_relative"] = (
+                band_powers.get("gamma_power_avg", 0) / total_power
+            )
         else:
-            ratios['gamma_power_relative'] = 0.0
+            ratios["gamma_power_relative"] = 0.0
 
         return ratios
 
@@ -574,11 +608,17 @@ class EEGProcessor:
             Attention score (0-1) with research-backed calculations
         """
         # Primary attention indicators (research-validated)
-        beta_power = band_powers.get('beta_power_frontal_avg', band_powers.get('beta_power_avg', 0))
-        alpha_power = band_powers.get('alpha_power_frontal_avg', band_powers.get('alpha_power_avg', 0))
+        beta_power = band_powers.get(
+            "beta_power_frontal_avg", band_powers.get("beta_power_avg", 0)
+        )
+        alpha_power = band_powers.get(
+            "alpha_power_frontal_avg", band_powers.get("alpha_power_avg", 0)
+        )
 
         # Secondary indicators
-        theta_power = band_powers.get('theta_power_frontal_avg', band_powers.get('theta_power_avg', 0))
+        theta_power = band_powers.get(
+            "theta_power_frontal_avg", band_powers.get("theta_power_avg", 0)
+        )
 
         # Research-based attention calculation
         attention_score = 0.0
@@ -617,12 +657,18 @@ class EEGProcessor:
         stress_score = 0.0
 
         # Primary stress indicators (research-validated)
-        beta_power = band_powers.get('beta_power_frontal_avg', band_powers.get('beta_power_avg', 0))
-        gamma_power = band_powers.get('gamma_power_frontal_avg', band_powers.get('gamma_power_avg', 0))
-        theta_power = band_powers.get('theta_power_frontal_avg', band_powers.get('theta_power_avg', 0))
+        beta_power = band_powers.get(
+            "beta_power_frontal_avg", band_powers.get("beta_power_avg", 0)
+        )
+        gamma_power = band_powers.get(
+            "gamma_power_frontal_avg", band_powers.get("gamma_power_avg", 0)
+        )
+        theta_power = band_powers.get(
+            "theta_power_frontal_avg", band_powers.get("theta_power_avg", 0)
+        )
 
         # Gamma power relative to total (primary stress marker)
-        gamma_relative = band_powers.get('gamma_power_relative', 0)
+        gamma_relative = band_powers.get("gamma_power_relative", 0)
         stress_score += gamma_relative * 0.4  # 40% weight
 
         # Beta/Gamma ratio (research-validated stress indicator)
@@ -660,8 +706,8 @@ class EEGProcessor:
         cognitive_load = 0.0
 
         # Primary cognitive load indicators (research-validated)
-        theta_alpha_ratio = band_powers.get('theta_alpha_ratio', 0)
-        theta_alpha_frontal = band_powers.get('theta_alpha_ratio_frontal', 0)
+        theta_alpha_ratio = band_powers.get("theta_alpha_ratio", 0)
+        theta_alpha_frontal = band_powers.get("theta_alpha_ratio_frontal", 0)
 
         # Frontal lobe focus (research emphasis on prefrontal cortex)
         if theta_alpha_frontal > 0:
@@ -675,7 +721,7 @@ class EEGProcessor:
             cognitive_load += load_from_overall * 0.4  # 40% weight
 
         # Connectivity consideration (research-validated)
-        connectivity_avg = band_powers.get('connectivity_avg', 0.5)
+        connectivity_avg = band_powers.get("connectivity_avg", 0.5)
         # Lower connectivity can indicate higher cognitive load (focused processing)
         connectivity_factor = 1 - connectivity_avg  # Invert relationship
         cognitive_load += connectivity_factor * 0.2  # 20% weight for connectivity
@@ -712,35 +758,34 @@ class EEGProcessor:
 
             if noise_power > 0:
                 snr = signal_power / noise_power
-                quality_metrics[f'snr_ch{ch+1}'] = float(snr)
+                quality_metrics[f"snr_ch{ch+1}"] = float(snr)
             else:
-                quality_metrics[f'snr_ch{ch+1}'] = 0.0
+                quality_metrics[f"snr_ch{ch+1}"] = 0.0
 
         # Overall quality based on average SNR
-        avg_snr = np.mean([
-            quality_metrics.get(f'snr_ch{ch+1}', 0)
-            for ch in range(self.channels)
-        ])
+        avg_snr = np.mean(
+            [quality_metrics.get(f"snr_ch{ch+1}", 0) for ch in range(self.channels)]
+        )
 
         # Normalize to 0-1 scale
         overall_quality = min(avg_snr / 20, 1)  # SNR of 20 is excellent
 
-        quality_metrics['overall_quality'] = overall_quality
-        quality_metrics['avg_snr'] = avg_snr
+        quality_metrics["overall_quality"] = overall_quality
+        quality_metrics["avg_snr"] = avg_snr
 
         return quality_metrics
 
     def _get_empty_response(self) -> Dict:
         """Return empty response when insufficient data."""
         return {
-            'band_powers': {},
-            'attention_score': 0.5,
-            'stress_level': 0.5,
-            'cognitive_load': 0.5,
-            'quality_metrics': {'overall_quality': 0.0},
-            'signal_quality': 0.0,
-            'processing_time': 0.0,
-            'timestamp': time.time()
+            "band_powers": {},
+            "attention_score": 0.5,
+            "stress_level": 0.5,
+            "cognitive_load": 0.5,
+            "quality_metrics": {"overall_quality": 0.0},
+            "signal_quality": 0.0,
+            "processing_time": 0.0,
+            "timestamp": time.time(),
         }
 
     def get_performance_stats(self) -> Dict[str, float]:
@@ -752,15 +797,15 @@ class EEGProcessor:
         """
         if not self.processing_times:
             return {
-                'avg_processing_time': 0.0,
-                'max_processing_time': 0.0,
-                'processing_count': 0
+                "avg_processing_time": 0.0,
+                "max_processing_time": 0.0,
+                "processing_count": 0,
             }
 
         return {
-            'avg_processing_time': np.mean(self.processing_times),
-            'max_processing_time': np.max(self.processing_times),
-            'processing_count': len(self.processing_times)
+            "avg_processing_time": np.mean(self.processing_times),
+            "max_processing_time": np.max(self.processing_times),
+            "processing_count": len(self.processing_times),
         }
 
     def reset(self) -> None:

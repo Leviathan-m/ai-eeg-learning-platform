@@ -86,7 +86,7 @@ def setup_logging() -> None:
         json_handler = logging.StreamHandler(sys.stdout)
         json_formatter = jsonlogger.JsonFormatter(
             fmt="%(asctime)s %(name)s %(levelname)s %(message)s",
-            datefmt="%Y-%m-%d %H:%M:%S"
+            datefmt="%Y-%m-%d %H:%M:%S",
         )
         json_handler.setFormatter(json_formatter)
 
@@ -148,9 +148,11 @@ class RequestLoggingMiddleware:
             return await self.app(scope, receive, send)
 
         # Generate request ID
-        request_id = structlog.get_logger().bind(
-            request_id=id(scope)
-        )._context.get("request_id", "unknown")
+        request_id = (
+            structlog.get_logger()
+            .bind(request_id=id(scope))
+            ._context.get("request_id", "unknown")
+        )
 
         logger = get_request_logger(request_id)
 
@@ -198,7 +200,9 @@ class RequestLoggingMiddleware:
 
 
 # Custom log processors for domain-specific logging
-def add_user_context(logger, method_name: str, event_dict: Dict[str, Any]) -> Dict[str, Any]:
+def add_user_context(
+    logger, method_name: str, event_dict: Dict[str, Any]
+) -> Dict[str, Any]:
     """
     Add user context to log entries if available.
     """
@@ -208,7 +212,9 @@ def add_user_context(logger, method_name: str, event_dict: Dict[str, Any]) -> Di
     return event_dict
 
 
-def add_eeg_context(logger, method_name: str, event_dict: Dict[str, Any]) -> Dict[str, Any]:
+def add_eeg_context(
+    logger, method_name: str, event_dict: Dict[str, Any]
+) -> Dict[str, Any]:
     """
     Add EEG processing context to log entries if available.
     """

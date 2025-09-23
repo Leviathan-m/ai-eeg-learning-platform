@@ -10,8 +10,18 @@ Author: AI-EEG Learning Platform Team
 from datetime import datetime
 from typing import Dict, List, Optional, Any
 from sqlalchemy import (
-    Column, Integer, String, DateTime, Text, Boolean, JSON, Float,
-    ForeignKey, Index, UniqueConstraint, CheckConstraint
+    Column,
+    Integer,
+    String,
+    DateTime,
+    Text,
+    Boolean,
+    JSON,
+    Float,
+    ForeignKey,
+    Index,
+    UniqueConstraint,
+    CheckConstraint,
 )
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship, Mapped, mapped_column
@@ -24,26 +34,39 @@ class User(Base):
     """
     User model for storing user information and learning profiles.
     """
+
     __tablename__ = "users"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
-    username: Mapped[str] = mapped_column(String(50), unique=True, nullable=False, index=True)
-    email: Mapped[str] = mapped_column(String(100), unique=True, nullable=False, index=True)
+    username: Mapped[str] = mapped_column(
+        String(50), unique=True, nullable=False, index=True
+    )
+    email: Mapped[str] = mapped_column(
+        String(100), unique=True, nullable=False, index=True
+    )
     hashed_password: Mapped[Optional[str]] = mapped_column(String(255))
     full_name: Mapped[Optional[str]] = mapped_column(String(100))
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     is_superuser: Mapped[bool] = mapped_column(Boolean, default=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now())
-    updated_at: Mapped[datetime] = mapped_column(DateTime, default=func.now(), onupdate=func.now())
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime, default=func.now(), onupdate=func.now()
+    )
 
     # Learning profile and preferences
     learning_profile: Mapped[Optional[Dict]] = mapped_column(JSON, default=dict)
     preferences: Mapped[Optional[Dict]] = mapped_column(JSON, default=dict)
 
     # Relationships
-    eeg_sessions: Mapped[List["EEGSession"]] = relationship("EEGSession", back_populates="user")
-    learning_sessions: Mapped[List["LearningSession"]] = relationship("LearningSession", back_populates="user")
-    recommendations: Mapped[List["Recommendation"]] = relationship("Recommendation", back_populates="user")
+    eeg_sessions: Mapped[List["EEGSession"]] = relationship(
+        "EEGSession", back_populates="user"
+    )
+    learning_sessions: Mapped[List["LearningSession"]] = relationship(
+        "LearningSession", back_populates="user"
+    )
+    recommendations: Mapped[List["Recommendation"]] = relationship(
+        "Recommendation", back_populates="user"
+    )
 
     def __repr__(self) -> str:
         return f"<User(id={self.id}, username={self.username}, email={self.email})>"
@@ -53,11 +76,16 @@ class EEGSession(Base):
     """
     EEG session model for tracking EEG data collection sessions.
     """
+
     __tablename__ = "eeg_sessions"
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, index=True)
-    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"), nullable=False, index=True)
-    session_id: Mapped[str] = mapped_column(String(36), unique=True, nullable=False, index=True)
+    user_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("users.id"), nullable=False, index=True
+    )
+    session_id: Mapped[str] = mapped_column(
+        String(36), unique=True, nullable=False, index=True
+    )
     device_type: Mapped[str] = mapped_column(String(20), nullable=False)
     start_time: Mapped[datetime] = mapped_column(DateTime, nullable=False, index=True)
     end_time: Mapped[Optional[datetime]] = mapped_column(DateTime)
@@ -71,27 +99,41 @@ class EEGSession(Base):
 
     # Relationships
     user: Mapped["User"] = relationship("User", back_populates="eeg_sessions")
-    data_points: Mapped[List["EEGDataPoint"]] = relationship("EEGDataPoint", back_populates="session")
-    learning_sessions: Mapped[List["LearningSession"]] = relationship("LearningSession", back_populates="eeg_session")
+    data_points: Mapped[List["EEGDataPoint"]] = relationship(
+        "EEGDataPoint", back_populates="session"
+    )
+    learning_sessions: Mapped[List["LearningSession"]] = relationship(
+        "LearningSession", back_populates="eeg_session"
+    )
 
     __table_args__ = (
-        Index('idx_eeg_sessions_user_time', 'user_id', 'start_time'),
-        CheckConstraint("status IN ('active', 'completed', 'interrupted')", name='check_eeg_session_status'),
+        Index("idx_eeg_sessions_user_time", "user_id", "start_time"),
+        CheckConstraint(
+            "status IN ('active', 'completed', 'interrupted')",
+            name="check_eeg_session_status",
+        ),
     )
 
     def __repr__(self) -> str:
-        return f"<EEGSession(id={self.id}, user_id={self.user_id}, status={self.status})>"
+        return (
+            f"<EEGSession(id={self.id}, user_id={self.user_id}, status={self.status})>"
+        )
 
 
 class EEGDataPoint(Base):
     """
     Individual EEG data point with raw data and processed features.
     """
+
     __tablename__ = "eeg_data_points"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
-    session_id: Mapped[str] = mapped_column(String(36), ForeignKey("eeg_sessions.id"), nullable=False, index=True)
-    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    session_id: Mapped[str] = mapped_column(
+        String(36), ForeignKey("eeg_sessions.id"), nullable=False, index=True
+    )
+    user_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("users.id"), nullable=False, index=True
+    )
     timestamp: Mapped[datetime] = mapped_column(DateTime, nullable=False, index=True)
 
     # Raw EEG data
@@ -105,12 +147,14 @@ class EEGDataPoint(Base):
     processing_time_ms: Mapped[Optional[float]] = mapped_column(Float)
 
     # Relationships
-    session: Mapped["EEGSession"] = relationship("EEGSession", back_populates="data_points")
+    session: Mapped["EEGSession"] = relationship(
+        "EEGSession", back_populates="data_points"
+    )
     user: Mapped["User"] = relationship("User")
 
     __table_args__ = (
-        Index('idx_eeg_data_user_time', 'user_id', 'timestamp'),
-        Index('idx_eeg_data_session_time', 'session_id', 'timestamp'),
+        Index("idx_eeg_data_user_time", "user_id", "timestamp"),
+        Index("idx_eeg_data_session_time", "session_id", "timestamp"),
     )
 
     def __repr__(self) -> str:
@@ -121,17 +165,22 @@ class LearningContent(Base):
     """
     Learning content model for storing educational materials.
     """
+
     __tablename__ = "learning_content"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
-    content_id: Mapped[str] = mapped_column(String(36), unique=True, nullable=False, index=True)
+    content_id: Mapped[str] = mapped_column(
+        String(36), unique=True, nullable=False, index=True
+    )
     title: Mapped[str] = mapped_column(String(200), nullable=False)
     subject: Mapped[str] = mapped_column(String(50), nullable=False, index=True)
     difficulty: Mapped[int] = mapped_column(Integer, nullable=False)
 
     # Content details
     description: Mapped[Optional[str]] = mapped_column(Text)
-    content_type: Mapped[str] = mapped_column(String(20), nullable=False)  # video, text, quiz, etc.
+    content_type: Mapped[str] = mapped_column(
+        String(20), nullable=False
+    )  # video, text, quiz, etc.
     duration_minutes: Mapped[int] = mapped_column(Integer, nullable=False)
     language: Mapped[str] = mapped_column(String(10), default="en")
 
@@ -149,17 +198,28 @@ class LearningContent(Base):
     view_count: Mapped[int] = mapped_column(Integer, default=0)
     avg_rating: Mapped[Optional[float]] = mapped_column(Float)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now())
-    updated_at: Mapped[datetime] = mapped_column(DateTime, default=func.now(), onupdate=func.now())
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime, default=func.now(), onupdate=func.now()
+    )
 
     # Relationships
-    learning_sessions: Mapped[List["LearningSession"]] = relationship("LearningSession", back_populates="content")
-    recommendations: Mapped[List["Recommendation"]] = relationship("Recommendation", back_populates="content")
+    learning_sessions: Mapped[List["LearningSession"]] = relationship(
+        "LearningSession", back_populates="content"
+    )
+    recommendations: Mapped[List["Recommendation"]] = relationship(
+        "Recommendation", back_populates="content"
+    )
 
     __table_args__ = (
-        CheckConstraint("difficulty >= 1 AND difficulty <= 10", name='check_difficulty_range'),
-        CheckConstraint("duration_minutes > 0", name='check_duration_positive'),
-        CheckConstraint("content_type IN ('video', 'text', 'quiz', 'interactive', 'mixed')", name='check_content_type'),
-        Index('idx_content_subject_difficulty', 'subject', 'difficulty'),
+        CheckConstraint(
+            "difficulty >= 1 AND difficulty <= 10", name="check_difficulty_range"
+        ),
+        CheckConstraint("duration_minutes > 0", name="check_duration_positive"),
+        CheckConstraint(
+            "content_type IN ('video', 'text', 'quiz', 'interactive', 'mixed')",
+            name="check_content_type",
+        ),
+        Index("idx_content_subject_difficulty", "subject", "difficulty"),
     )
 
     def __repr__(self) -> str:
@@ -170,12 +230,22 @@ class LearningSession(Base):
     """
     Learning session model for tracking user learning activities.
     """
+
     __tablename__ = "learning_sessions"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
-    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"), nullable=False, index=True)
-    content_id: Mapped[str] = mapped_column(String(36), ForeignKey("learning_content.content_id"), nullable=False, index=True)
-    eeg_session_id: Mapped[Optional[str]] = mapped_column(String(36), ForeignKey("eeg_sessions.id"))
+    user_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("users.id"), nullable=False, index=True
+    )
+    content_id: Mapped[str] = mapped_column(
+        String(36),
+        ForeignKey("learning_content.content_id"),
+        nullable=False,
+        index=True,
+    )
+    eeg_session_id: Mapped[Optional[str]] = mapped_column(
+        String(36), ForeignKey("eeg_sessions.id")
+    )
 
     # Session timing
     start_time: Mapped[datetime] = mapped_column(DateTime, nullable=False, index=True)
@@ -203,14 +273,21 @@ class LearningSession(Base):
 
     # Relationships
     user: Mapped["User"] = relationship("User", back_populates="learning_sessions")
-    content: Mapped["LearningContent"] = relationship("LearningContent", back_populates="learning_sessions")
-    eeg_session: Mapped[Optional["EEGSession"]] = relationship("EEGSession", back_populates="learning_sessions")
+    content: Mapped["LearningContent"] = relationship(
+        "LearningContent", back_populates="learning_sessions"
+    )
+    eeg_session: Mapped[Optional["EEGSession"]] = relationship(
+        "EEGSession", back_populates="learning_sessions"
+    )
 
     __table_args__ = (
-        CheckConstraint("progress_percentage >= 0 AND progress_percentage <= 100", name='check_progress_range'),
-        CheckConstraint("score >= 0 AND score <= 100", name='check_score_range'),
-        Index('idx_learning_sessions_user_content', 'user_id', 'content_id'),
-        Index('idx_learning_sessions_user_time', 'user_id', 'start_time'),
+        CheckConstraint(
+            "progress_percentage >= 0 AND progress_percentage <= 100",
+            name="check_progress_range",
+        ),
+        CheckConstraint("score >= 0 AND score <= 100", name="check_score_range"),
+        Index("idx_learning_sessions_user_content", "user_id", "content_id"),
+        Index("idx_learning_sessions_user_time", "user_id", "start_time"),
     )
 
     def __repr__(self) -> str:
@@ -221,14 +298,24 @@ class Recommendation(Base):
     """
     Learning recommendation model for storing AI-generated suggestions.
     """
+
     __tablename__ = "recommendations"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
-    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"), nullable=False, index=True)
-    content_id: Mapped[str] = mapped_column(String(36), ForeignKey("learning_content.content_id"), nullable=False, index=True)
+    user_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("users.id"), nullable=False, index=True
+    )
+    content_id: Mapped[str] = mapped_column(
+        String(36),
+        ForeignKey("learning_content.content_id"),
+        nullable=False,
+        index=True,
+    )
 
     # Recommendation details
-    recommended_at: Mapped[datetime] = mapped_column(DateTime, default=func.now(), index=True)
+    recommended_at: Mapped[datetime] = mapped_column(
+        DateTime, default=func.now(), index=True
+    )
     confidence_score: Mapped[float] = mapped_column(Float, nullable=False)
     reasoning: Mapped[str] = mapped_column(Text, nullable=False)
     context: Mapped[Optional[str]] = mapped_column(Text)
@@ -240,7 +327,9 @@ class Recommendation(Base):
     user_rating: Mapped[Optional[int]] = mapped_column(Integer)
 
     # Performance after recommendation
-    resulting_session_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey("learning_sessions.id"))
+    resulting_session_id: Mapped[Optional[int]] = mapped_column(
+        Integer, ForeignKey("learning_sessions.id")
+    )
     performance_improvement: Mapped[Optional[float]] = mapped_column(Float)
 
     # Algorithm metadata
@@ -250,14 +339,23 @@ class Recommendation(Base):
 
     # Relationships
     user: Mapped["User"] = relationship("User", back_populates="recommendations")
-    content: Mapped["LearningContent"] = relationship("LearningContent", back_populates="recommendations")
-    resulting_session: Mapped[Optional["LearningSession"]] = relationship("LearningSession")
+    content: Mapped["LearningContent"] = relationship(
+        "LearningContent", back_populates="recommendations"
+    )
+    resulting_session: Mapped[Optional["LearningSession"]] = relationship(
+        "LearningSession"
+    )
 
     __table_args__ = (
-        CheckConstraint("confidence_score >= 0 AND confidence_score <= 1", name='check_confidence_range'),
-        CheckConstraint("user_rating >= 1 AND user_rating <= 5", name='check_rating_range'),
-        Index('idx_recommendations_user_time', 'user_id', 'recommended_at'),
-        Index('idx_recommendations_user_content', 'user_id', 'content_id'),
+        CheckConstraint(
+            "confidence_score >= 0 AND confidence_score <= 1",
+            name="check_confidence_range",
+        ),
+        CheckConstraint(
+            "user_rating >= 1 AND user_rating <= 5", name="check_rating_range"
+        ),
+        Index("idx_recommendations_user_time", "user_id", "recommended_at"),
+        Index("idx_recommendations_user_content", "user_id", "content_id"),
     )
 
     def __repr__(self) -> str:
@@ -268,21 +366,29 @@ class SystemMetrics(Base):
     """
     System metrics model for monitoring and analytics.
     """
+
     __tablename__ = "system_metrics"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     metric_name: Mapped[str] = mapped_column(String(100), nullable=False, index=True)
     metric_value: Mapped[float] = mapped_column(Float, nullable=False)
-    metric_type: Mapped[str] = mapped_column(String(20), nullable=False)  # gauge, counter, histogram
-    timestamp: Mapped[datetime] = mapped_column(DateTime, default=func.now(), index=True)
+    metric_type: Mapped[str] = mapped_column(
+        String(20), nullable=False
+    )  # gauge, counter, histogram
+    timestamp: Mapped[datetime] = mapped_column(
+        DateTime, default=func.now(), index=True
+    )
 
     # Additional metadata
     labels: Mapped[Optional[Dict]] = mapped_column(JSON, default=dict)
     description: Mapped[Optional[str]] = mapped_column(String(255))
 
     __table_args__ = (
-        CheckConstraint("metric_type IN ('gauge', 'counter', 'histogram', 'summary')", name='check_metric_type'),
-        Index('idx_system_metrics_name_time', 'metric_name', 'timestamp'),
+        CheckConstraint(
+            "metric_type IN ('gauge', 'counter', 'histogram', 'summary')",
+            name="check_metric_type",
+        ),
+        Index("idx_system_metrics_name_time", "metric_name", "timestamp"),
     )
 
     def __repr__(self) -> str:
@@ -294,7 +400,7 @@ async def create_user(
     username: str,
     email: str,
     hashed_password: Optional[str] = None,
-    full_name: Optional[str] = None
+    full_name: Optional[str] = None,
 ) -> User:
     """
     Create a new user in the database.
@@ -313,7 +419,7 @@ async def create_user(
             username=username,
             email=email,
             hashed_password=hashed_password,
-            full_name=full_name
+            full_name=full_name,
         )
         db.add(user)
         await db.commit()
@@ -333,8 +439,7 @@ async def get_user_by_username(username: str) -> Optional[User]:
     """
     async with get_db() as db:
         result = await db.execute(
-            "SELECT * FROM users WHERE username = :username",
-            {"username": username}
+            "SELECT * FROM users WHERE username = :username", {"username": username}
         )
         return result.scalar_one_or_none()
 
@@ -351,16 +456,13 @@ async def get_user_by_email(email: str) -> Optional[User]:
     """
     async with get_db() as db:
         result = await db.execute(
-            "SELECT * FROM users WHERE email = :email",
-            {"email": email}
+            "SELECT * FROM users WHERE email = :email", {"email": email}
         )
         return result.scalar_one_or_none()
 
 
 async def create_eeg_session(
-    user_id: int,
-    session_id: str,
-    device_type: str = "unknown"
+    user_id: int, session_id: str, device_type: str = "unknown"
 ) -> EEGSession:
     """
     Create a new EEG session.
@@ -379,7 +481,7 @@ async def create_eeg_session(
             user_id=user_id,
             session_id=session_id,
             device_type=device_type,
-            start_time=func.now()
+            start_time=func.now(),
         )
         db.add(session)
         await db.commit()

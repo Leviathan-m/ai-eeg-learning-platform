@@ -13,6 +13,7 @@ import asyncio
 
 try:
     import redis.asyncio as redis
+
     REDIS_AVAILABLE = True
 except ImportError:
     REDIS_AVAILABLE = False
@@ -49,7 +50,7 @@ class CacheService:
                     decode_responses=False,  # Keep bytes for pickle
                     retry_on_timeout=True,
                     socket_connect_timeout=5,
-                    socket_timeout=5
+                    socket_timeout=5,
                 )
 
                 # Test connection
@@ -59,7 +60,7 @@ class CacheService:
             except Exception as e:
                 logger.warning(
                     "Redis connection failed, falling back to memory cache",
-                    error=str(e)
+                    error=str(e),
                 )
                 self.redis_client = None
         else:
@@ -115,12 +116,7 @@ class CacheService:
 
         return None
 
-    async def set(
-        self,
-        key: str,
-        value: Any,
-        ttl: Optional[int] = None
-    ) -> bool:
+    async def set(self, key: str, value: Any, ttl: Optional[int] = None) -> bool:
         """
         Set value in cache.
 
@@ -330,11 +326,7 @@ class CacheService:
         return None
 
     async def hset(
-        self,
-        key: str,
-        field: str,
-        value: Any,
-        ttl: Optional[int] = None
+        self, key: str, field: str, value: Any, ttl: Optional[int] = None
     ) -> bool:
         """
         Set field in hash cache.
@@ -430,7 +422,10 @@ class CacheService:
 
         # Memory cache fallback
         import fnmatch
-        return [key for key in self.memory_cache.keys() if fnmatch.fnmatch(key, pattern)]
+
+        return [
+            key for key in self.memory_cache.keys() if fnmatch.fnmatch(key, pattern)
+        ]
 
     async def clear_pattern(self, pattern: str) -> int:
         """
@@ -464,24 +459,28 @@ class CacheService:
 
         stats = {
             "cache_type": "redis" if self.redis_client else "memory",
-            "initialized": self.initialized
+            "initialized": self.initialized,
         }
 
         if self.redis_client:
             try:
                 info = await self.redis_client.info()
-                stats.update({
-                    "redis_connected_clients": info.get("connected_clients", 0),
-                    "redis_used_memory": info.get("used_memory", 0),
-                    "redis_total_keys": await self.redis_client.dbsize()
-                })
+                stats.update(
+                    {
+                        "redis_connected_clients": info.get("connected_clients", 0),
+                        "redis_used_memory": info.get("used_memory", 0),
+                        "redis_total_keys": await self.redis_client.dbsize(),
+                    }
+                )
             except Exception as e:
                 stats["redis_error"] = str(e)
         else:
-            stats.update({
-                "memory_cache_size": len(self.memory_cache),
-                "memory_cache_with_ttl": len(self.memory_cache_ttl)
-            })
+            stats.update(
+                {
+                    "memory_cache_size": len(self.memory_cache),
+                    "memory_cache_with_ttl": len(self.memory_cache_ttl),
+                }
+            )
 
         return stats
 
@@ -491,7 +490,7 @@ class CacheService:
         user_id: str,
         session_id: str,
         features: Dict[str, Any],
-        ttl: Optional[int] = None
+        ttl: Optional[int] = None,
     ) -> None:
         """
         Cache EEG features for a user session.
@@ -506,9 +505,7 @@ class CacheService:
         await self.set(cache_key, features, ttl)
 
     async def get_cached_eeg_features(
-        self,
-        user_id: str,
-        session_id: str
+        self, user_id: str, session_id: str
     ) -> Optional[Dict[str, Any]]:
         """
         Get cached EEG features for a user session.
@@ -524,10 +521,7 @@ class CacheService:
         return await self.get(cache_key)
 
     async def cache_user_profile(
-        self,
-        user_id: str,
-        profile_data: Dict[str, Any],
-        ttl: Optional[int] = None
+        self, user_id: str, profile_data: Dict[str, Any], ttl: Optional[int] = None
     ) -> None:
         """
         Cache user profile data.

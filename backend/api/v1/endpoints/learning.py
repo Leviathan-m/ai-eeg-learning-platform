@@ -24,6 +24,7 @@ logger = get_request_logger("learning_api")
 # Pydantic models for request/response
 class LearningContentResponse(BaseModel):
     """Model for learning content response."""
+
     content_id: str
     title: str
     subject: str
@@ -39,6 +40,7 @@ class LearningContentResponse(BaseModel):
 
 class LearningSessionRequest(BaseModel):
     """Model for learning session creation."""
+
     content_id: str
     eeg_session_id: Optional[str] = None
     notes: Optional[str] = Field(None, max_length=500)
@@ -46,6 +48,7 @@ class LearningSessionRequest(BaseModel):
 
 class LearningSessionResponse(BaseModel):
     """Model for learning session response."""
+
     id: int
     user_id: int
     content_id: str
@@ -61,6 +64,7 @@ class LearningSessionResponse(BaseModel):
 
 class LearningProgress(BaseModel):
     """Model for learning progress tracking."""
+
     content_id: str
     title: str
     progress_percentage: float
@@ -79,7 +83,7 @@ async def get_learning_content(
     tags: Optional[List[str]] = Query(None),
     skip: int = 0,
     limit: int = Query(default=20, ge=1, le=100),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ) -> List[LearningContentResponse]:
     """
     Get available learning content with optional filtering.
@@ -127,34 +131,34 @@ async def get_learning_content(
 
         content_list = []
         for item in content_items:
-            content_list.append(LearningContentResponse(
-                content_id=item.content_id,
-                title=item.title,
-                subject=item.subject,
-                difficulty=item.difficulty,
-                description=item.description,
-                content_type=item.content_type,
-                duration_minutes=item.duration_minutes,
-                prerequisites=item.prerequisites or [],
-                learning_objectives=item.learning_objectives or [],
-                tags=item.tags or [],
-                created_at=item.created_at
-            ))
+            content_list.append(
+                LearningContentResponse(
+                    content_id=item.content_id,
+                    title=item.title,
+                    subject=item.subject,
+                    difficulty=item.difficulty,
+                    description=item.description,
+                    content_type=item.content_type,
+                    duration_minutes=item.duration_minutes,
+                    prerequisites=item.prerequisites or [],
+                    learning_objectives=item.learning_objectives or [],
+                    tags=item.tags or [],
+                    created_at=item.created_at,
+                )
+            )
 
         return content_list
 
     except Exception as e:
         logger.error("Failed to retrieve learning content", error=str(e))
         raise HTTPException(
-            status_code=500,
-            detail="Failed to retrieve learning content"
+            status_code=500, detail="Failed to retrieve learning content"
         )
 
 
 @router.get("/content/{content_id}", response_model=LearningContentResponse)
 async def get_content_details(
-    content_id: str,
-    db: AsyncSession = Depends(get_db)
+    content_id: str, db: AsyncSession = Depends(get_db)
 ) -> LearningContentResponse:
     """
     Get detailed information about specific learning content.
@@ -167,17 +171,17 @@ async def get_content_details(
         Detailed content information
     """
     try:
-        result = await db.execute("""
+        result = await db.execute(
+            """
             SELECT * FROM learning_content WHERE content_id = :content_id
-        """, {"content_id": content_id})
+        """,
+            {"content_id": content_id},
+        )
 
         content = result.first()
 
         if not content:
-            raise HTTPException(
-                status_code=404,
-                detail="Learning content not found"
-            )
+            raise HTTPException(status_code=404, detail="Learning content not found")
 
         return LearningContentResponse(
             content_id=content.content_id,
@@ -190,20 +194,17 @@ async def get_content_details(
             prerequisites=content.prerequisites or [],
             learning_objectives=content.learning_objectives or [],
             tags=content.tags or [],
-            created_at=content.created_at
+            created_at=content.created_at,
         )
 
     except HTTPException:
         raise
     except Exception as e:
         logger.error(
-            "Failed to retrieve content details",
-            content_id=content_id,
-            error=str(e)
+            "Failed to retrieve content details", content_id=content_id, error=str(e)
         )
         raise HTTPException(
-            status_code=500,
-            detail="Failed to retrieve content details"
+            status_code=500, detail="Failed to retrieve content details"
         )
 
 
@@ -211,7 +212,7 @@ async def get_content_details(
 async def start_learning_session(
     session_request: LearningSessionRequest,
     current_user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ) -> LearningSessionResponse:
     """
     Start a new learning session.
@@ -226,31 +227,31 @@ async def start_learning_session(
     """
     try:
         # Verify content exists
-        content_result = await db.execute("""
+        content_result = await db.execute(
+            """
             SELECT id FROM learning_content WHERE content_id = :content_id
-        """, {"content_id": session_request.content_id})
+        """,
+            {"content_id": session_request.content_id},
+        )
 
         if not content_result.first():
-            raise HTTPException(
-                status_code=404,
-                detail="Learning content not found"
-            )
+            raise HTTPException(status_code=404, detail="Learning content not found")
 
         # Verify EEG session if provided
         if session_request.eeg_session_id:
-            eeg_result = await db.execute("""
+            eeg_result = await db.execute(
+                """
                 SELECT id FROM eeg_sessions
                 WHERE session_id = :session_id AND user_id = :user_id
-            """, {
-                "session_id": session_request.eeg_session_id,
-                "user_id": current_user.id
-            })
+            """,
+                {
+                    "session_id": session_request.eeg_session_id,
+                    "user_id": current_user.id,
+                },
+            )
 
             if not eeg_result.first():
-                raise HTTPException(
-                    status_code=404,
-                    detail="EEG session not found"
-                )
+                raise HTTPException(status_code=404, detail="EEG session not found")
 
         # Create learning session
         session = LearningSession(
@@ -258,7 +259,7 @@ async def start_learning_session(
             content_id=session_request.content_id,
             eeg_session_id=session_request.eeg_session_id,
             start_time=datetime.utcnow(),
-            notes=session_request.notes
+            notes=session_request.notes,
         )
 
         db.add(session)
@@ -269,7 +270,7 @@ async def start_learning_session(
             "Learning session started",
             user_id=current_user.id,
             content_id=session_request.content_id,
-            session_id=session.id
+            session_id=session.id,
         )
 
         return LearningSessionResponse(
@@ -283,7 +284,7 @@ async def start_learning_session(
             progress_percentage=session.progress_percentage,
             score=session.score,
             notes=session.notes,
-            eeg_session_id=session.eeg_session_id
+            eeg_session_id=session.eeg_session_id,
         )
 
     except HTTPException:
@@ -293,12 +294,9 @@ async def start_learning_session(
             "Failed to start learning session",
             user_id=current_user.id,
             content_id=session_request.content_id,
-            error=str(e)
+            error=str(e),
         )
-        raise HTTPException(
-            status_code=500,
-            detail="Failed to start learning session"
-        )
+        raise HTTPException(status_code=500, detail="Failed to start learning session")
 
 
 @router.put("/sessions/{session_id}", response_model=LearningSessionResponse)
@@ -309,7 +307,7 @@ async def update_learning_session(
     completed: Optional[bool] = None,
     notes: Optional[str] = None,
     current_user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ) -> LearningSessionResponse:
     """
     Update an existing learning session.
@@ -328,18 +326,18 @@ async def update_learning_session(
     """
     try:
         # Get session
-        result = await db.execute("""
+        result = await db.execute(
+            """
             SELECT * FROM learning_sessions
             WHERE id = :session_id AND user_id = :user_id
-        """, {"session_id": session_id, "user_id": current_user.id})
+        """,
+            {"session_id": session_id, "user_id": current_user.id},
+        )
 
         session = result.first()
 
         if not session:
-            raise HTTPException(
-                status_code=404,
-                detail="Learning session not found"
-            )
+            raise HTTPException(status_code=404, detail="Learning session not found")
 
         # Update fields
         update_data = {}
@@ -357,7 +355,8 @@ async def update_learning_session(
         if update_data:
             update_data["updated_at"] = datetime.utcnow()
 
-            await db.execute("""
+            await db.execute(
+                """
                 UPDATE learning_sessions
                 SET progress_percentage = COALESCE(:progress_percentage, progress_percentage),
                     score = COALESCE(:score, score),
@@ -365,16 +364,17 @@ async def update_learning_session(
                     end_time = COALESCE(:end_time, end_time),
                     notes = COALESCE(:notes, notes)
                 WHERE id = :session_id AND user_id = :user_id
-            """, {
-                "session_id": session_id,
-                "user_id": current_user.id,
-                **update_data
-            })
+            """,
+                {"session_id": session_id, "user_id": current_user.id, **update_data},
+            )
 
             # Refresh session data
-            result = await db.execute("""
+            result = await db.execute(
+                """
                 SELECT * FROM learning_sessions WHERE id = :session_id
-            """, {"session_id": session_id})
+            """,
+                {"session_id": session_id},
+            )
             session = result.first()
 
         await db.commit()
@@ -390,7 +390,7 @@ async def update_learning_session(
             progress_percentage=session.progress_percentage,
             score=session.score,
             notes=session.notes,
-            eeg_session_id=session.eeg_session_id
+            eeg_session_id=session.eeg_session_id,
         )
 
     except HTTPException:
@@ -400,12 +400,9 @@ async def update_learning_session(
             "Failed to update learning session",
             session_id=session_id,
             user_id=current_user.id,
-            error=str(e)
+            error=str(e),
         )
-        raise HTTPException(
-            status_code=500,
-            detail="Failed to update learning session"
-        )
+        raise HTTPException(status_code=500, detail="Failed to update learning session")
 
 
 @router.get("/sessions", response_model=List[LearningSessionResponse])
@@ -415,7 +412,7 @@ async def get_learning_sessions(
     skip: int = 0,
     limit: int = Query(default=20, ge=1, le=100),
     current_user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ) -> List[LearningSessionResponse]:
     """
     Get user's learning sessions with optional filtering.
@@ -453,19 +450,21 @@ async def get_learning_sessions(
 
         session_list = []
         for session in sessions:
-            session_list.append(LearningSessionResponse(
-                id=session.id,
-                user_id=session.user_id,
-                content_id=session.content_id,
-                start_time=session.start_time,
-                end_time=session.end_time,
-                duration_seconds=session.duration_seconds,
-                completed=session.completed,
-                progress_percentage=session.progress_percentage,
-                score=session.score,
-                notes=session.notes,
-                eeg_session_id=session.eeg_session_id
-            ))
+            session_list.append(
+                LearningSessionResponse(
+                    id=session.id,
+                    user_id=session.user_id,
+                    content_id=session.content_id,
+                    start_time=session.start_time,
+                    end_time=session.end_time,
+                    duration_seconds=session.duration_seconds,
+                    completed=session.completed,
+                    progress_percentage=session.progress_percentage,
+                    score=session.score,
+                    notes=session.notes,
+                    eeg_session_id=session.eeg_session_id,
+                )
+            )
 
         return session_list
 
@@ -473,18 +472,16 @@ async def get_learning_sessions(
         logger.error(
             "Failed to retrieve learning sessions",
             user_id=current_user.id,
-            error=str(e)
+            error=str(e),
         )
         raise HTTPException(
-            status_code=500,
-            detail="Failed to retrieve learning sessions"
+            status_code=500, detail="Failed to retrieve learning sessions"
         )
 
 
 @router.get("/progress", response_model=List[LearningProgress])
 async def get_learning_progress(
-    current_user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db)
+    current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)
 ) -> List[LearningProgress]:
     """
     Get learning progress for all user's content.
@@ -497,7 +494,8 @@ async def get_learning_progress(
         List of learning progress for each content
     """
     try:
-        result = await db.execute("""
+        result = await db.execute(
+            """
             SELECT
                 lc.content_id,
                 lc.title,
@@ -518,7 +516,9 @@ async def get_learning_progress(
             GROUP BY lc.content_id, lc.title, lc.duration_minutes
             HAVING MAX(ls.progress_percentage) > 0 OR COUNT(ls.id) > 0
             ORDER BY last_accessed DESC
-        """, {"user_id": current_user.id})
+        """,
+            {"user_id": current_user.id},
+        )
 
         progress_items = result.fetchall()
 
@@ -527,21 +527,25 @@ async def get_learning_progress(
             # Estimate completion time
             if item.max_progress and item.max_progress > 0:
                 remaining_percentage = 100 - item.max_progress
-                estimated_seconds = (item.total_time_spent / item.max_progress) * remaining_percentage
+                estimated_seconds = (
+                    item.total_time_spent / item.max_progress
+                ) * remaining_percentage
                 estimated_completion = f"{int(estimated_seconds // 3600)}h {int((estimated_seconds % 3600) // 60)}m"
             else:
                 estimated_completion = "Unknown"
 
-            progress_list.append(LearningProgress(
-                content_id=item.content_id,
-                title=item.title,
-                progress_percentage=item.max_progress or 0,
-                time_spent_seconds=int(item.total_time_spent or 0),
-                estimated_completion_time=estimated_completion,
-                last_accessed=item.last_accessed,
-                avg_score=item.avg_score,
-                completed_sections=[]  # Would need additional tracking
-            ))
+            progress_list.append(
+                LearningProgress(
+                    content_id=item.content_id,
+                    title=item.title,
+                    progress_percentage=item.max_progress or 0,
+                    time_spent_seconds=int(item.total_time_spent or 0),
+                    estimated_completion_time=estimated_completion,
+                    last_accessed=item.last_accessed,
+                    avg_score=item.avg_score,
+                    completed_sections=[],  # Would need additional tracking
+                )
+            )
 
         return progress_list
 
@@ -549,18 +553,15 @@ async def get_learning_progress(
         logger.error(
             "Failed to retrieve learning progress",
             user_id=current_user.id,
-            error=str(e)
+            error=str(e),
         )
         raise HTTPException(
-            status_code=500,
-            detail="Failed to retrieve learning progress"
+            status_code=500, detail="Failed to retrieve learning progress"
         )
 
 
 @router.get("/subjects")
-async def get_available_subjects(
-    db: AsyncSession = Depends(get_db)
-) -> List[str]:
+async def get_available_subjects(db: AsyncSession = Depends(get_db)) -> List[str]:
     """
     Get list of available subjects.
 
@@ -571,27 +572,26 @@ async def get_available_subjects(
         List of available subjects
     """
     try:
-        result = await db.execute("""
+        result = await db.execute(
+            """
             SELECT DISTINCT subject FROM learning_content
             ORDER BY subject
-        """)
+        """
+        )
 
         subjects = [row.subject for row in result.fetchall()]
         return subjects
 
     except Exception as e:
         logger.error("Failed to retrieve subjects", error=str(e))
-        raise HTTPException(
-            status_code=500,
-            detail="Failed to retrieve subjects"
-        )
+        raise HTTPException(status_code=500, detail="Failed to retrieve subjects")
 
 
 @router.get("/stats")
 async def get_learning_stats(
     period_days: int = Query(default=30, ge=1, le=365),
     current_user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ) -> Dict[str, Any]:
     """
     Get comprehensive learning statistics.
@@ -608,7 +608,8 @@ async def get_learning_stats(
         since_date = datetime.utcnow() - timedelta(days=period_days)
 
         # Get session statistics
-        session_result = await db.execute("""
+        session_result = await db.execute(
+            """
             SELECT
                 COUNT(*) as total_sessions,
                 COUNT(CASE WHEN completed = true THEN 1 END) as completed_sessions,
@@ -616,21 +617,29 @@ async def get_learning_stats(
                 AVG(score) as avg_score
             FROM learning_sessions
             WHERE user_id = :user_id AND start_time >= :since
-        """, {"user_id": current_user.id, "since": since_date})
+        """,
+            {"user_id": current_user.id, "since": since_date},
+        )
 
         stats = session_result.first()
 
         # Get subject breakdown
-        subject_result = await db.execute("""
+        subject_result = await db.execute(
+            """
             SELECT lc.subject, COUNT(*) as count
             FROM learning_sessions ls
             JOIN learning_content lc ON ls.content_id = lc.content_id
             WHERE ls.user_id = :user_id AND ls.start_time >= :since
             GROUP BY lc.subject
             ORDER BY count DESC
-        """, {"user_id": current_user.id, "since": since_date})
+        """,
+            {"user_id": current_user.id, "since": since_date},
+        )
 
-        subjects = [{"subject": row.subject, "count": row.count} for row in subject_result.fetchall()]
+        subjects = [
+            {"subject": row.subject, "count": row.count}
+            for row in subject_result.fetchall()
+        ]
 
         return {
             "period_days": period_days,
@@ -641,16 +650,13 @@ async def get_learning_stats(
             ),
             "avg_session_duration": round(stats.avg_duration or 0, 2),
             "avg_score": round(stats.avg_score or 0, 2),
-            "subjects_breakdown": subjects
+            "subjects_breakdown": subjects,
         }
 
     except Exception as e:
         logger.error(
-            "Failed to retrieve learning stats",
-            user_id=current_user.id,
-            error=str(e)
+            "Failed to retrieve learning stats", user_id=current_user.id, error=str(e)
         )
         raise HTTPException(
-            status_code=500,
-            detail="Failed to retrieve learning statistics"
+            status_code=500, detail="Failed to retrieve learning statistics"
         )

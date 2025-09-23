@@ -18,7 +18,7 @@ from services.auth_service import (
     get_current_user,
     authenticate_user,
     create_access_token,
-    get_password_hash
+    get_password_hash,
 )
 from utils.logging_config import get_request_logger
 
@@ -29,6 +29,7 @@ logger = get_request_logger("users_api")
 # Pydantic models for request/response
 class UserCreate(BaseModel):
     """Model for user creation."""
+
     username: str = Field(..., min_length=3, max_length=50)
     email: EmailStr
     password: str = Field(..., min_length=8)
@@ -37,18 +38,21 @@ class UserCreate(BaseModel):
 
 class UserLogin(BaseModel):
     """Model for user login."""
+
     username: str = Field(..., min_length=1)
     password: str = Field(..., min_length=1)
 
 
 class Token(BaseModel):
     """Model for authentication token."""
+
     access_token: str
     token_type: str = "bearer"
 
 
 class UserProfile(BaseModel):
     """Model for user profile response."""
+
     id: int
     username: str
     email: str
@@ -61,6 +65,7 @@ class UserProfile(BaseModel):
 
 class UserProfileUpdate(BaseModel):
     """Model for user profile update."""
+
     full_name: Optional[str] = Field(None, max_length=100)
     learning_profile: Optional[Dict[str, Any]] = None
     preferences: Optional[Dict[str, Any]] = None
@@ -68,6 +73,7 @@ class UserProfileUpdate(BaseModel):
 
 class UserStats(BaseModel):
     """Model for user statistics."""
+
     total_eeg_sessions: int
     total_learning_sessions: int
     avg_session_duration: float
@@ -78,8 +84,7 @@ class UserStats(BaseModel):
 
 @router.post("/register", response_model=UserProfile)
 async def register_user(
-    user_data: UserCreate,
-    db: AsyncSession = Depends(get_db)
+    user_data: UserCreate, db: AsyncSession = Depends(get_db)
 ) -> UserProfile:
     """
     Register a new user account.
@@ -101,12 +106,12 @@ async def register_user(
             if existing_user.username == user_data.username:
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="Username already registered"
+                    detail="Username already registered",
                 )
             else:
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="Email already registered"
+                    detail="Email already registered",
                 )
 
         # Create new user
@@ -116,7 +121,7 @@ async def register_user(
             username=user_data.username,
             email=user_data.email,
             hashed_password=hashed_password,
-            full_name=user_data.full_name
+            full_name=user_data.full_name,
         )
 
         db.add(new_user)
@@ -126,7 +131,7 @@ async def register_user(
         logger.info(
             "User registered successfully",
             user_id=new_user.id,
-            username=new_user.username
+            username=new_user.username,
         )
 
         return UserProfile(
@@ -137,27 +142,24 @@ async def register_user(
             is_active=new_user.is_active,
             created_at=new_user.created_at,
             learning_profile=new_user.learning_profile,
-            preferences=new_user.preferences
+            preferences=new_user.preferences,
         )
 
     except HTTPException:
         raise
     except Exception as e:
         logger.error(
-            "User registration failed",
-            username=user_data.username,
-            error=str(e)
+            "User registration failed", username=user_data.username, error=str(e)
         )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to register user"
+            detail="Failed to register user",
         )
 
 
 @router.post("/login", response_model=Token)
 async def login_user(
-    login_data: UserLogin,
-    db: AsyncSession = Depends(get_db)
+    login_data: UserLogin, db: AsyncSession = Depends(get_db)
 ) -> Token:
     """
     Authenticate user and return access token.
@@ -181,16 +183,13 @@ async def login_user(
 
         if not user.is_active:
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Inactive user"
+                status_code=status.HTTP_400_BAD_REQUEST, detail="Inactive user"
             )
 
         access_token = create_access_token(data={"sub": user.username})
 
         logger.info(
-            "User logged in successfully",
-            user_id=user.id,
-            username=user.username
+            "User logged in successfully", user_id=user.id, username=user.username
         )
 
         return Token(access_token=access_token, token_type="bearer")
@@ -198,20 +197,15 @@ async def login_user(
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(
-            "User login failed",
-            username=login_data.username,
-            error=str(e)
-        )
+        logger.error("User login failed", username=login_data.username, error=str(e))
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Login failed"
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Login failed"
         )
 
 
 @router.get("/me", response_model=UserProfile)
 async def get_current_user_profile(
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
 ) -> UserProfile:
     """
     Get current user's profile information.
@@ -230,7 +224,7 @@ async def get_current_user_profile(
         is_active=current_user.is_active,
         created_at=current_user.created_at,
         learning_profile=current_user.learning_profile,
-        preferences=current_user.preferences
+        preferences=current_user.preferences,
     )
 
 
@@ -238,7 +232,7 @@ async def get_current_user_profile(
 async def update_user_profile(
     profile_data: UserProfileUpdate,
     current_user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ) -> UserProfile:
     """
     Update current user's profile information.
@@ -256,8 +250,7 @@ async def update_user_profile(
 
         if not update_data:
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="No fields to update"
+                status_code=status.HTTP_400_BAD_REQUEST, detail="No fields to update"
             )
 
         # Update user fields
@@ -273,7 +266,7 @@ async def update_user_profile(
         logger.info(
             "User profile updated",
             user_id=current_user.id,
-            updated_fields=list(update_data.keys())
+            updated_fields=list(update_data.keys()),
         )
 
         return UserProfile(
@@ -284,27 +277,22 @@ async def update_user_profile(
             is_active=current_user.is_active,
             created_at=current_user.created_at,
             learning_profile=current_user.learning_profile,
-            preferences=current_user.preferences
+            preferences=current_user.preferences,
         )
 
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(
-            "Profile update failed",
-            user_id=current_user.id,
-            error=str(e)
-        )
+        logger.error("Profile update failed", user_id=current_user.id, error=str(e))
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to update profile"
+            detail="Failed to update profile",
         )
 
 
 @router.get("/stats", response_model=UserStats)
 async def get_user_stats(
-    current_user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db)
+    current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)
 ) -> UserStats:
     """
     Get comprehensive statistics for the current user.
@@ -318,30 +306,37 @@ async def get_user_stats(
     """
     try:
         # Get EEG session stats
-        eeg_result = await db.execute("""
+        eeg_result = await db.execute(
+            """
             SELECT
                 COUNT(*) as total_sessions,
                 AVG(EXTRACT(EPOCH FROM (end_time - start_time))) as avg_duration
             FROM eeg_sessions
             WHERE user_id = :user_id AND status = 'completed'
-        """, {"user_id": current_user.id})
+        """,
+            {"user_id": current_user.id},
+        )
 
         eeg_stats = eeg_result.first()
 
         # Get learning session stats
-        learning_result = await db.execute("""
+        learning_result = await db.execute(
+            """
             SELECT
                 COUNT(*) as total_sessions,
                 COUNT(CASE WHEN completed = true THEN 1 END) as completed_count,
                 AVG(EXTRACT(EPOCH FROM (end_time - start_time))) as avg_duration
             FROM learning_sessions
             WHERE user_id = :user_id
-        """, {"user_id": current_user.id})
+        """,
+            {"user_id": current_user.id},
+        )
 
         learning_stats = learning_result.first()
 
         # Get favorite subjects
-        subject_result = await db.execute("""
+        subject_result = await db.execute(
+            """
             SELECT lc.subject, COUNT(*) as count
             FROM learning_sessions ls
             JOIN learning_content lc ON ls.content_id = lc.content_id
@@ -349,18 +344,23 @@ async def get_user_stats(
             GROUP BY lc.subject
             ORDER BY count DESC
             LIMIT 5
-        """, {"user_id": current_user.id})
+        """,
+            {"user_id": current_user.id},
+        )
 
         favorite_subjects = [row.subject for row in subject_result.fetchall()]
 
         # Calculate current streak (simplified)
-        streak_result = await db.execute("""
+        streak_result = await db.execute(
+            """
             SELECT COUNT(*) as streak
             FROM learning_sessions
             WHERE user_id = :user_id
                 AND completed = true
                 AND DATE(start_time) >= CURRENT_DATE - INTERVAL '7 days'
-        """, {"user_id": current_user.id})
+        """,
+            {"user_id": current_user.id},
+        )
 
         streak = streak_result.first().streak or 0
 
@@ -370,25 +370,22 @@ async def get_user_stats(
             avg_session_duration=learning_stats.avg_duration or 0,
             total_content_completed=learning_stats.completed_count or 0,
             current_streak=streak,
-            favorite_subjects=favorite_subjects
+            favorite_subjects=favorite_subjects,
         )
 
     except Exception as e:
         logger.error(
-            "Failed to retrieve user stats",
-            user_id=current_user.id,
-            error=str(e)
+            "Failed to retrieve user stats", user_id=current_user.id, error=str(e)
         )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to retrieve user statistics"
+            detail="Failed to retrieve user statistics",
         )
 
 
 @router.delete("/me")
 async def delete_user_account(
-    current_user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db)
+    current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)
 ) -> Dict[str, str]:
     """
     Delete the current user's account and all associated data.
@@ -414,27 +411,21 @@ async def delete_user_account(
         logger.info(
             "User account deactivated",
             user_id=current_user.id,
-            username=current_user.username
+            username=current_user.username,
         )
 
         return {"message": "Account deactivated successfully"}
 
     except Exception as e:
-        logger.error(
-            "Account deletion failed",
-            user_id=current_user.id,
-            error=str(e)
-        )
+        logger.error("Account deletion failed", user_id=current_user.id, error=str(e))
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to delete account"
+            detail="Failed to delete account",
         )
 
 
 async def get_user_by_username_or_email(
-    db: AsyncSession,
-    username: str,
-    email: str
+    db: AsyncSession, username: str, email: str
 ) -> Optional[User]:
     """
     Get user by username or email.
@@ -447,9 +438,12 @@ async def get_user_by_username_or_email(
     Returns:
         User object or None if not found
     """
-    result = await db.execute("""
+    result = await db.execute(
+        """
         SELECT * FROM users
         WHERE username = :username OR email = :email
-    """, {"username": username, "email": email})
+    """,
+        {"username": username, "email": email},
+    )
 
     return result.first()

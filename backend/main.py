@@ -61,7 +61,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     await close_db()
 
     # Cleanup services
-    if hasattr(app.state, 'eeg_manager'):
+    if hasattr(app.state, "eeg_manager"):
         await app.state.eeg_manager.cleanup()
 
     logger.info("Application shutdown complete")
@@ -148,16 +148,12 @@ async def eeg_websocket_endpoint(websocket: WebSocket, user_id: str):
 
             # Process EEG data in real-time
             processed_features = await eeg_manager.process_eeg_data(
-                user_id=user_id,
-                session_id=session_id,
-                eeg_data=eeg_sample
+                user_id=user_id, session_id=session_id, eeg_data=eeg_sample
             )
 
             # Generate learning recommendations based on EEG features
             recommendations = await recommendation_service.generate_recommendations(
-                user_id=user_id,
-                eeg_features=processed_features,
-                context={}
+                user_id=user_id, eeg_features=processed_features, context={}
             )
 
             # Send processed data and recommendations back to client
@@ -183,10 +179,9 @@ async def eeg_websocket_endpoint(websocket: WebSocket, user_id: str):
 
     except Exception as e:
         logger.error("EEG WebSocket error", user_id=user_id, error=str(e))
-        await websocket.send_json({
-            "error": "Internal server error",
-            "message": "Failed to process EEG data"
-        })
+        await websocket.send_json(
+            {"error": "Internal server error", "message": "Failed to process EEG data"}
+        )
 
 
 # Include API routes
@@ -204,8 +199,8 @@ async def global_exception_handler(request: Request, exc: Exception):
         status_code=500,
         content={
             "error": "Internal server error",
-            "message": "An unexpected error occurred"
-        }
+            "message": "An unexpected error occurred",
+        },
     )
 
 
@@ -220,6 +215,7 @@ def parse_eeg_data(raw_data: str) -> dict:
         Parsed EEG data dictionary
     """
     import json
+
     try:
         return json.loads(raw_data)
     except json.JSONDecodeError:

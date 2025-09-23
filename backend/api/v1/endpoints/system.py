@@ -28,6 +28,7 @@ _service_start_time = time.time()
 # Pydantic models for request/response
 class HealthStatus(BaseModel):
     """Model for system health status."""
+
     status: str = Field(..., description="Overall system status")
     timestamp: float = Field(default_factory=time.time)
     version: str = "1.0.0"
@@ -44,6 +45,7 @@ class HealthStatus(BaseModel):
 
 class SystemMetricsResponse(BaseModel):
     """Model for system metrics response."""
+
     metric_name: str
     metric_value: float
     metric_type: str
@@ -54,6 +56,7 @@ class SystemMetricsResponse(BaseModel):
 
 class SystemStats(BaseModel):
     """Model for comprehensive system statistics."""
+
     uptime_seconds: float
     total_users: int
     active_users_24h: int
@@ -101,14 +104,14 @@ async def get_system_health() -> HealthStatus:
             database=db_health,
             cache=cache_health,
             eeg_processing=eeg_health,
-            response_time_ms=response_time
+            response_time_ms=response_time,
         )
 
         # Log health check results
         logger.info(
             "Health check completed",
             status=overall_status,
-            response_time_ms=round(response_time, 2)
+            response_time_ms=round(response_time, 2),
         )
 
         return health_status
@@ -123,14 +126,12 @@ async def get_system_health() -> HealthStatus:
             database={"status": "unknown", "error": str(e)},
             cache={"status": "unknown", "error": str(e)},
             eeg_processing={"status": "unknown", "error": str(e)},
-            response_time_ms=(time.time() - start_time) * 1000
+            response_time_ms=(time.time() - start_time) * 1000,
         )
 
 
 @router.get("/stats", response_model=SystemStats)
-async def get_system_stats(
-    db: AsyncSession = Depends(get_db)
-) -> SystemStats:
+async def get_system_stats(db: AsyncSession = Depends(get_db)) -> SystemStats:
     """
     Get comprehensive system statistics.
 
@@ -142,25 +143,29 @@ async def get_system_stats(
     """
     try:
         # Get user statistics
-        user_result = await db.execute("""
+        user_result = await db.execute(
+            """
             SELECT
                 COUNT(*) as total_users,
                 COUNT(CASE WHEN created_at >= CURRENT_DATE - INTERVAL '1 day' THEN 1 END) as new_users_24h,
                 COUNT(CASE WHEN updated_at >= CURRENT_DATE - INTERVAL '1 day' THEN 1 END) as active_users_24h
             FROM users
             WHERE is_active = true
-        """)
+        """
+        )
 
         user_stats = user_result.first()
 
         # Get session statistics
-        session_result = await db.execute("""
+        session_result = await db.execute(
+            """
             SELECT
                 COUNT(DISTINCT es.id) as total_eeg_sessions,
                 COUNT(DISTINCT ls.id) as total_learning_sessions
             FROM eeg_sessions es
             FULL OUTER JOIN learning_sessions ls ON true
-        """)
+        """
+        )
 
         session_stats = session_result.first()
 
@@ -176,14 +181,13 @@ async def get_system_stats(
             total_learning_sessions=session_stats.total_learning_sessions or 0,
             avg_response_time=0.0,  # Would need to track this separately
             memory_usage_mb=memory_usage,
-            cpu_usage_percent=cpu_usage
+            cpu_usage_percent=cpu_usage,
         )
 
     except Exception as e:
         logger.error("Failed to retrieve system stats", error=str(e))
         raise HTTPException(
-            status_code=500,
-            detail="Failed to retrieve system statistics"
+            status_code=500, detail="Failed to retrieve system statistics"
         )
 
 
@@ -191,7 +195,7 @@ async def get_system_stats(
 async def get_system_metrics(
     metric_type: Optional[str] = None,
     limit: int = 100,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ) -> List[SystemMetricsResponse]:
     """
     Get system metrics data.
@@ -224,23 +228,22 @@ async def get_system_metrics(
 
         metrics = []
         for row in rows:
-            metrics.append(SystemMetricsResponse(
-                metric_name=row.metric_name,
-                metric_value=row.metric_value,
-                metric_type=row.metric_type,
-                timestamp=row.timestamp.timestamp(),
-                labels=row.labels,
-                description=row.description
-            ))
+            metrics.append(
+                SystemMetricsResponse(
+                    metric_name=row.metric_name,
+                    metric_value=row.metric_value,
+                    metric_type=row.metric_type,
+                    timestamp=row.timestamp.timestamp(),
+                    labels=row.labels,
+                    description=row.description,
+                )
+            )
 
         return metrics
 
     except Exception as e:
         logger.error("Failed to retrieve system metrics", error=str(e))
-        raise HTTPException(
-            status_code=500,
-            detail="Failed to retrieve system metrics"
-        )
+        raise HTTPException(status_code=500, detail="Failed to retrieve system metrics")
 
 
 @router.post("/metrics")
@@ -250,7 +253,7 @@ async def record_system_metric(
     metric_type: str = "gauge",
     labels: Optional[Dict[str, Any]] = None,
     description: Optional[str] = None,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ) -> Dict[str, str]:
     """
     Record a new system metric.
@@ -270,7 +273,7 @@ async def record_system_metric(
         if metric_type not in ["gauge", "counter", "histogram", "summary"]:
             raise HTTPException(
                 status_code=400,
-                detail="Invalid metric type. Must be: gauge, counter, histogram, summary"
+                detail="Invalid metric type. Must be: gauge, counter, histogram, summary",
             )
 
         # Create metric record
@@ -279,7 +282,7 @@ async def record_system_metric(
             metric_value=metric_value,
             metric_type=metric_type,
             labels=labels or {},
-            description=description
+            description=description,
         )
 
         db.add(metric)
@@ -289,7 +292,7 @@ async def record_system_metric(
             "System metric recorded",
             metric_name=metric_name,
             value=metric_value,
-            type=metric_type
+            type=metric_type,
         )
 
         return {"message": "Metric recorded successfully"}
@@ -298,14 +301,9 @@ async def record_system_metric(
         raise
     except Exception as e:
         logger.error(
-            "Failed to record system metric",
-            metric_name=metric_name,
-            error=str(e)
+            "Failed to record system metric", metric_name=metric_name, error=str(e)
         )
-        raise HTTPException(
-            status_code=500,
-            detail="Failed to record system metric"
-        )
+        raise HTTPException(status_code=500, detail="Failed to record system metric")
 
 
 @router.get("/config")
@@ -334,15 +332,13 @@ async def get_system_config() -> Dict[str, Any]:
     except Exception as e:
         logger.error("Failed to retrieve system config", error=str(e))
         raise HTTPException(
-            status_code=500,
-            detail="Failed to retrieve system configuration"
+            status_code=500, detail="Failed to retrieve system configuration"
         )
 
 
 @router.post("/maintenance/cleanup")
 async def trigger_cleanup(
-    cleanup_type: str = "inactive_sessions",
-    db: AsyncSession = Depends(get_db)
+    cleanup_type: str = "inactive_sessions", db: AsyncSession = Depends(get_db)
 ) -> Dict[str, Any]:
     """
     Trigger system maintenance cleanup operations.
@@ -359,64 +355,60 @@ async def trigger_cleanup(
 
         if cleanup_type == "inactive_sessions":
             # Clean up old inactive sessions
-            result = await db.execute("""
+            result = await db.execute(
+                """
                 DELETE FROM eeg_sessions
                 WHERE status = 'active'
                     AND start_time < CURRENT_TIMESTAMP - INTERVAL '24 hours'
-            """)
+            """
+            )
 
             results["inactive_sessions_removed"] = result.rowcount
 
         elif cleanup_type == "old_metrics":
             # Clean up old system metrics (keep last 30 days)
-            result = await db.execute("""
+            result = await db.execute(
+                """
                 DELETE FROM system_metrics
                 WHERE timestamp < CURRENT_TIMESTAMP - INTERVAL '30 days'
-            """)
+            """
+            )
 
             results["old_metrics_removed"] = result.rowcount
 
         elif cleanup_type == "orphaned_data":
             # Clean up orphaned EEG data points
-            result = await db.execute("""
+            result = await db.execute(
+                """
                 DELETE FROM eeg_data_points
                 WHERE session_id NOT IN (SELECT id FROM eeg_sessions)
-            """)
+            """
+            )
 
             results["orphaned_data_points_removed"] = result.rowcount
 
         else:
             raise HTTPException(
-                status_code=400,
-                detail=f"Unknown cleanup type: {cleanup_type}"
+                status_code=400, detail=f"Unknown cleanup type: {cleanup_type}"
             )
 
         await db.commit()
 
         logger.info(
-            "System cleanup completed",
-            cleanup_type=cleanup_type,
-            results=results
+            "System cleanup completed", cleanup_type=cleanup_type, results=results
         )
 
         return {
             "message": "Cleanup completed successfully",
             "cleanup_type": cleanup_type,
-            "results": results
+            "results": results,
         }
 
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(
-            "System cleanup failed",
-            cleanup_type=cleanup_type,
-            error=str(e)
-        )
-        raise HTTPException(
-            status_code=500,
-            detail="System cleanup failed"
-        )
+        logger.error("System cleanup failed", cleanup_type=cleanup_type, error=str(e))
+        raise HTTPException(status_code=500, detail="System cleanup failed")
 
 
 async def check_cache_health() -> Dict[str, Any]:
@@ -429,15 +421,9 @@ async def check_cache_health() -> Dict[str, Any]:
     try:
         # Simple ping to Redis
         # In a real implementation, you'd use the actual Redis client
-        return {
-            "status": "healthy",
-            "ping_time_ms": 1.0
-        }
+        return {"status": "healthy", "ping_time_ms": 1.0}
     except Exception as e:
-        return {
-            "status": "unhealthy",
-            "error": str(e)
-        }
+        return {"status": "unhealthy", "error": str(e)}
 
 
 async def check_eeg_processing_health() -> Dict[str, Any]:
@@ -451,23 +437,17 @@ async def check_eeg_processing_health() -> Dict[str, Any]:
         # Get EEG manager status
         from main import app
 
-        if hasattr(app.state, 'eeg_manager'):
+        if hasattr(app.state, "eeg_manager"):
             stats = await app.state.eeg_manager.get_system_stats()
             return {
                 "status": "healthy",
-                "active_sessions": stats.get('active_sessions', 0),
-                "total_data_points": stats.get('total_data_points', 0)
+                "active_sessions": stats.get("active_sessions", 0),
+                "total_data_points": stats.get("total_data_points", 0),
             }
         else:
-            return {
-                "status": "unhealthy",
-                "error": "EEG manager not initialized"
-            }
+            return {"status": "unhealthy", "error": "EEG manager not initialized"}
     except Exception as e:
-        return {
-            "status": "unhealthy",
-            "error": str(e)
-        }
+        return {"status": "unhealthy", "error": str(e)}
 
 
 async def get_memory_usage() -> float:
@@ -479,6 +459,7 @@ async def get_memory_usage() -> float:
     """
     try:
         import psutil
+
         process = psutil.Process()
         memory_info = process.memory_info()
         return memory_info.rss / 1024 / 1024  # Convert to MB
@@ -498,6 +479,7 @@ async def get_cpu_usage() -> float:
     """
     try:
         import psutil
+
         return psutil.cpu_percent(interval=1)
     except ImportError:
         # psutil not available

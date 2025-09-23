@@ -25,6 +25,7 @@ logger = get_request_logger("eeg_api")
 # Pydantic models for request/response
 class EEGDataSubmit(BaseModel):
     """Model for EEG data submission."""
+
     timestamp: datetime = Field(default_factory=datetime.utcnow)
     channels: List[float] = Field(..., min_items=1, max_items=32)
     sampling_rate: int = Field(default=256, ge=1, le=1000)
@@ -34,6 +35,7 @@ class EEGDataSubmit(BaseModel):
 
 class EEGSessionResponse(BaseModel):
     """Model for EEG session response."""
+
     session_id: str
     user_id: int
     device_type: str
@@ -47,6 +49,7 @@ class EEGSessionResponse(BaseModel):
 
 class EEGDataPointResponse(BaseModel):
     """Model for EEG data point response."""
+
     id: int
     session_id: str
     timestamp: datetime
@@ -57,6 +60,7 @@ class EEGDataPointResponse(BaseModel):
 
 class EEGProcessingStats(BaseModel):
     """Model for EEG processing statistics."""
+
     active_sessions: int
     total_sessions_today: int
     total_data_points: int
@@ -69,7 +73,7 @@ async def submit_eeg_data(
     eeg_data: EEGDataSubmit,
     background_tasks: BackgroundTasks,
     current_user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ) -> Dict[str, Any]:
     """
     Submit EEG data for research-validated real-time cognitive load prediction.
@@ -103,6 +107,7 @@ async def submit_eeg_data(
         # Get or create EEG processing manager (should be injected)
         # For now, we'll use a global instance
         from main import app
+
         eeg_manager = app.state.eeg_manager
 
         # Check if user has an active session
@@ -114,42 +119,36 @@ async def submit_eeg_data(
             logger.info(
                 "Created new EEG session",
                 user_id=current_user.id,
-                session_id=session_id
+                session_id=session_id,
             )
         else:
-            session_id = session_info['session_id']
+            session_id = session_info["session_id"]
 
         # Process EEG data
         processing_result = await eeg_manager.process_eeg_data(
             user_id=str(current_user.id),
             session_id=session_id,
-            eeg_data=eeg_data.dict()
+            eeg_data=eeg_data.dict(),
         )
 
         # Background task to update session metadata
         background_tasks.add_task(
-            update_session_metadata,
-            db,
-            session_id,
-            processing_result
+            update_session_metadata, db, session_id, processing_result
         )
 
         return {
             "status": "success",
             "session_id": session_id,
             "features": processing_result,
-            "processed_at": datetime.utcnow()
+            "processed_at": datetime.utcnow(),
         }
 
     except Exception as e:
         logger.error(
-            "EEG data submission failed",
-            user_id=current_user.id,
-            error=str(e)
+            "EEG data submission failed", user_id=current_user.id, error=str(e)
         )
         raise HTTPException(
-            status_code=500,
-            detail=f"Failed to process EEG data: {str(e)}"
+            status_code=500, detail=f"Failed to process EEG data: {str(e)}"
         )
 
 
@@ -158,7 +157,7 @@ async def get_user_sessions(
     skip: int = 0,
     limit: int = 50,
     current_user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ) -> List[EEGSessionResponse]:
     """
     Get user's EEG sessions.
@@ -173,12 +172,15 @@ async def get_user_sessions(
         List of user's EEG sessions
     """
     try:
-        result = await db.execute("""
+        result = await db.execute(
+            """
             SELECT * FROM eeg_sessions
             WHERE user_id = :user_id
             ORDER BY start_time DESC
             LIMIT :limit OFFSET :skip
-        """, {"user_id": current_user.id, "limit": limit, "skip": skip})
+        """,
+            {"user_id": current_user.id, "limit": limit, "skip": skip},
+        )
 
         sessions = result.fetchall()
 
@@ -192,28 +194,23 @@ async def get_user_sessions(
                 status=session.status,
                 duration_seconds=session.duration_seconds,
                 avg_signal_quality=session.avg_signal_quality,
-                total_data_points=session.total_data_points
+                total_data_points=session.total_data_points,
             )
             for session in sessions
         ]
 
     except Exception as e:
         logger.error(
-            "Failed to retrieve EEG sessions",
-            user_id=current_user.id,
-            error=str(e)
+            "Failed to retrieve EEG sessions", user_id=current_user.id, error=str(e)
         )
-        raise HTTPException(
-            status_code=500,
-            detail="Failed to retrieve EEG sessions"
-        )
+        raise HTTPException(status_code=500, detail="Failed to retrieve EEG sessions")
 
 
 @router.get("/sessions/{session_id}", response_model=EEGSessionResponse)
 async def get_session_details(
     session_id: str,
     current_user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ) -> EEGSessionResponse:
     """
     Get detailed information about a specific EEG session.
@@ -227,18 +224,18 @@ async def get_session_details(
         Detailed session information
     """
     try:
-        result = await db.execute("""
+        result = await db.execute(
+            """
             SELECT * FROM eeg_sessions
             WHERE session_id = :session_id AND user_id = :user_id
-        """, {"session_id": session_id, "user_id": current_user.id})
+        """,
+            {"session_id": session_id, "user_id": current_user.id},
+        )
 
         session = result.first()
 
         if not session:
-            raise HTTPException(
-                status_code=404,
-                detail="EEG session not found"
-            )
+            raise HTTPException(status_code=404, detail="EEG session not found")
 
         return EEGSessionResponse(
             session_id=session.session_id,
@@ -249,7 +246,7 @@ async def get_session_details(
             status=session.status,
             duration_seconds=session.duration_seconds,
             avg_signal_quality=session.avg_signal_quality,
-            total_data_points=session.total_data_points
+            total_data_points=session.total_data_points,
         )
 
     except HTTPException:
@@ -259,11 +256,10 @@ async def get_session_details(
             "Failed to retrieve session details",
             session_id=session_id,
             user_id=current_user.id,
-            error=str(e)
+            error=str(e),
         )
         raise HTTPException(
-            status_code=500,
-            detail="Failed to retrieve session details"
+            status_code=500, detail="Failed to retrieve session details"
         )
 
 
@@ -273,7 +269,7 @@ async def get_session_data(
     skip: int = 0,
     limit: int = 100,
     current_user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ) -> List[EEGDataPointResponse]:
     """
     Get EEG data points for a specific session.
@@ -289,17 +285,20 @@ async def get_session_data(
         List of EEG data points
     """
     try:
-        result = await db.execute("""
+        result = await db.execute(
+            """
             SELECT * FROM eeg_data_points
             WHERE session_id = :session_id AND user_id = :user_id
             ORDER BY timestamp ASC
             LIMIT :limit OFFSET :skip
-        """, {
-            "session_id": session_id,
-            "user_id": current_user.id,
-            "limit": limit,
-            "skip": skip
-        })
+        """,
+            {
+                "session_id": session_id,
+                "user_id": current_user.id,
+                "limit": limit,
+                "skip": skip,
+            },
+        )
 
         data_points = result.fetchall()
 
@@ -310,7 +309,7 @@ async def get_session_data(
                 timestamp=point.timestamp,
                 signal_quality=point.signal_quality,
                 processing_time_ms=point.processing_time_ms,
-                features=point.processed_features
+                features=point.processed_features,
             )
             for point in data_points
         ]
@@ -320,17 +319,14 @@ async def get_session_data(
             "Failed to retrieve session data",
             session_id=session_id,
             user_id=current_user.id,
-            error=str(e)
+            error=str(e),
         )
-        raise HTTPException(
-            status_code=500,
-            detail="Failed to retrieve session data"
-        )
+        raise HTTPException(status_code=500, detail="Failed to retrieve session data")
 
 
 @router.get("/stats", response_model=EEGProcessingStats)
 async def get_processing_stats(
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
 ) -> EEGProcessingStats:
     """
     Get EEG processing statistics.
@@ -344,27 +340,25 @@ async def get_processing_stats(
     try:
         # Get EEG manager from app state
         from main import app
+
         eeg_manager = app.state.eeg_manager
 
         stats = await eeg_manager.get_system_stats()
 
         return EEGProcessingStats(
-            active_sessions=stats['active_sessions'],
-            total_sessions_today=stats['total_sessions_today'],
-            total_data_points=stats['total_data_points'],
-            avg_processing_time=stats['avg_processing_time'],
-            memory_usage=stats['memory_usage']
+            active_sessions=stats["active_sessions"],
+            total_sessions_today=stats["total_sessions_today"],
+            total_data_points=stats["total_data_points"],
+            avg_processing_time=stats["avg_processing_time"],
+            memory_usage=stats["memory_usage"],
         )
 
     except Exception as e:
         logger.error(
-            "Failed to retrieve processing stats",
-            user_id=current_user.id,
-            error=str(e)
+            "Failed to retrieve processing stats", user_id=current_user.id, error=str(e)
         )
         raise HTTPException(
-            status_code=500,
-            detail="Failed to retrieve processing statistics"
+            status_code=500, detail="Failed to retrieve processing statistics"
         )
 
 
@@ -372,7 +366,7 @@ async def get_processing_stats(
 async def delete_session(
     session_id: str,
     current_user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ) -> Dict[str, str]:
     """
     Delete an EEG session and all associated data.
@@ -387,37 +381,41 @@ async def delete_session(
     """
     try:
         # Verify session ownership
-        result = await db.execute("""
+        result = await db.execute(
+            """
             SELECT id FROM eeg_sessions
             WHERE session_id = :session_id AND user_id = :user_id
-        """, {"session_id": session_id, "user_id": current_user.id})
+        """,
+            {"session_id": session_id, "user_id": current_user.id},
+        )
 
         session = result.first()
 
         if not session:
-            raise HTTPException(
-                status_code=404,
-                detail="EEG session not found"
-            )
+            raise HTTPException(status_code=404, detail="EEG session not found")
 
         # Delete associated data points first
-        await db.execute("""
+        await db.execute(
+            """
             DELETE FROM eeg_data_points
             WHERE session_id = :session_id
-        """, {"session_id": session_id})
+        """,
+            {"session_id": session_id},
+        )
 
         # Delete the session
-        await db.execute("""
+        await db.execute(
+            """
             DELETE FROM eeg_sessions
             WHERE session_id = :session_id AND user_id = :user_id
-        """, {"session_id": session_id, "user_id": current_user.id})
+        """,
+            {"session_id": session_id, "user_id": current_user.id},
+        )
 
         await db.commit()
 
         logger.info(
-            "EEG session deleted",
-            session_id=session_id,
-            user_id=current_user.id
+            "EEG session deleted", session_id=session_id, user_id=current_user.id
         )
 
         return {"message": "EEG session deleted successfully"}
@@ -429,18 +427,13 @@ async def delete_session(
             "Failed to delete EEG session",
             session_id=session_id,
             user_id=current_user.id,
-            error=str(e)
+            error=str(e),
         )
-        raise HTTPException(
-            status_code=500,
-            detail="Failed to delete EEG session"
-        )
+        raise HTTPException(status_code=500, detail="Failed to delete EEG session")
 
 
 async def update_session_metadata(
-    db: AsyncSession,
-    session_id: str,
-    processing_result: Dict[str, Any]
+    db: AsyncSession, session_id: str, processing_result: Dict[str, Any]
 ) -> None:
     """
     Background task to update session metadata with processing results.
@@ -452,9 +445,10 @@ async def update_session_metadata(
     """
     try:
         # Update session statistics
-        signal_quality = processing_result.get('signal_quality', 0.0)
+        signal_quality = processing_result.get("signal_quality", 0.0)
 
-        await db.execute("""
+        await db.execute(
+            """
             UPDATE eeg_sessions
             SET
                 total_data_points = total_data_points + 1,
@@ -463,16 +457,13 @@ async def update_session_metadata(
                     :quality
                 )
             WHERE session_id = :session_id
-        """, {
-            "session_id": session_id,
-            "quality": signal_quality
-        })
+        """,
+            {"session_id": session_id, "quality": signal_quality},
+        )
 
         await db.commit()
 
     except Exception as e:
         logger.error(
-            "Failed to update session metadata",
-            session_id=session_id,
-            error=str(e)
+            "Failed to update session metadata", session_id=session_id, error=str(e)
         )

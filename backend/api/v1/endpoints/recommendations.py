@@ -26,15 +26,23 @@ logger = get_request_logger("recommendations_api")
 # Pydantic models for request/response
 class CognitiveLoadPrediction(BaseModel):
     """Model for cognitive load prediction from CNN-LSTM model."""
+
     cognitive_load_level: str = Field(..., description="Predicted cognitive load level")
     confidence_score: float = Field(..., description="Prediction confidence (0-1)")
-    theta_alpha_ratio: Optional[float] = Field(None, description="Theta/Alpha power ratio")
-    processing_time_ms: Optional[float] = Field(None, description="Model processing time")
-    research_validation: Optional[str] = Field(None, description="Research validation notes")
+    theta_alpha_ratio: Optional[float] = Field(
+        None, description="Theta/Alpha power ratio"
+    )
+    processing_time_ms: Optional[float] = Field(
+        None, description="Model processing time"
+    )
+    research_validation: Optional[str] = Field(
+        None, description="Research validation notes"
+    )
 
 
 class RecommendationRequest(BaseModel):
     """Model for recommendation request with research-based cognitive load integration."""
+
     context: Optional[str] = Field(None, description="Learning context or goal")
     max_recommendations: int = Field(default=5, ge=1, le=20)
     difficulty_preference: Optional[int] = Field(None, ge=1, le=10)
@@ -42,12 +50,13 @@ class RecommendationRequest(BaseModel):
     content_type_filter: Optional[List[str]] = Field(None)
     cognitive_load_prediction: Optional[CognitiveLoadPrediction] = Field(
         None,
-        description="Real-time cognitive load prediction from CNN-LSTM model (research-validated)"
+        description="Real-time cognitive load prediction from CNN-LSTM model (research-validated)",
     )
 
 
 class RecommendationResponse(BaseModel):
     """Model for recommendation response."""
+
     id: int
     content_id: str
     title: str
@@ -63,6 +72,7 @@ class RecommendationResponse(BaseModel):
 
 class RecommendationFeedback(BaseModel):
     """Model for recommendation feedback."""
+
     recommendation_id: int
     accepted: bool
     user_rating: Optional[int] = Field(None, ge=1, le=5)
@@ -74,7 +84,7 @@ class RecommendationFeedback(BaseModel):
 async def get_recommendations(
     request: RecommendationRequest,
     current_user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ) -> List[RecommendationResponse]:
     """
     Get personalized learning content recommendations.
@@ -93,6 +103,7 @@ async def get_recommendations(
     try:
         # Get recommendation service from app state
         from main import app
+
         recommendation_service = app.state.recommendation_service
 
         # Get user's recent EEG features
@@ -104,11 +115,11 @@ async def get_recommendations(
         cognitive_load_data = None
         if request.cognitive_load_prediction:
             cognitive_load_data = {
-                'cognitive_load_level': request.cognitive_load_prediction.cognitive_load_level,
-                'confidence_score': request.cognitive_load_prediction.confidence_score,
-                'theta_alpha_ratio': request.cognitive_load_prediction.theta_alpha_ratio,
-                'processing_time_ms': request.cognitive_load_prediction.processing_time_ms,
-                'research_validation': request.cognitive_load_prediction.research_validation
+                "cognitive_load_level": request.cognitive_load_prediction.cognitive_load_level,
+                "confidence_score": request.cognitive_load_prediction.confidence_score,
+                "theta_alpha_ratio": request.cognitive_load_prediction.theta_alpha_ratio,
+                "processing_time_ms": request.cognitive_load_prediction.processing_time_ms,
+                "research_validation": request.cognitive_load_prediction.research_validation,
             }
 
         recommendations = await recommendation_service.generate_recommendations(
@@ -119,7 +130,7 @@ async def get_recommendations(
             difficulty_preference=request.difficulty_preference,
             subject_filter=request.subject_filter,
             content_type_filter=request.content_type_filter,
-            cognitive_load_prediction=cognitive_load_data
+            cognitive_load_prediction=cognitive_load_data,
         )
 
         # Store recommendations in database
@@ -128,11 +139,11 @@ async def get_recommendations(
             # Create database record
             db_rec = Recommendation(
                 user_id=current_user.id,
-                content_id=rec['content_id'],
-                confidence_score=rec['confidence_score'],
-                reasoning=rec['reasoning'],
+                content_id=rec["content_id"],
+                confidence_score=rec["confidence_score"],
+                reasoning=rec["reasoning"],
                 context=request.context,
-                features_used=eeg_features
+                features_used=eeg_features,
             )
 
             db.add(db_rec)
@@ -148,37 +159,34 @@ async def get_recommendations(
         response = []
         for i, rec in enumerate(recommendations):
             db_rec = stored_recommendations[i]
-            response.append(RecommendationResponse(
-                id=db_rec.id,
-                content_id=rec['content_id'],
-                title=rec['title'],
-                subject=rec['subject'],
-                difficulty=rec['difficulty'],
-                content_type=rec['content_type'],
-                duration_minutes=rec['duration_minutes'],
-                confidence_score=rec['confidence_score'],
-                reasoning=rec['reasoning'],
-                recommended_at=db_rec.recommended_at,
-                metadata=rec.get('metadata')
-            ))
+            response.append(
+                RecommendationResponse(
+                    id=db_rec.id,
+                    content_id=rec["content_id"],
+                    title=rec["title"],
+                    subject=rec["subject"],
+                    difficulty=rec["difficulty"],
+                    content_type=rec["content_type"],
+                    duration_minutes=rec["duration_minutes"],
+                    confidence_score=rec["confidence_score"],
+                    reasoning=rec["reasoning"],
+                    recommended_at=db_rec.recommended_at,
+                    metadata=rec.get("metadata"),
+                )
+            )
 
         logger.info(
-            "Generated recommendations",
-            user_id=current_user.id,
-            count=len(response)
+            "Generated recommendations", user_id=current_user.id, count=len(response)
         )
 
         return response
 
     except Exception as e:
         logger.error(
-            "Failed to generate recommendations",
-            user_id=current_user.id,
-            error=str(e)
+            "Failed to generate recommendations", user_id=current_user.id, error=str(e)
         )
         raise HTTPException(
-            status_code=500,
-            detail=f"Failed to generate recommendations: {str(e)}"
+            status_code=500, detail=f"Failed to generate recommendations: {str(e)}"
         )
 
 
@@ -188,7 +196,7 @@ async def get_recommendation_history(
     limit: int = 50,
     accepted_only: Optional[bool] = None,
     current_user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ) -> List[RecommendationResponse]:
     """
     Get user's recommendation history.
@@ -226,19 +234,21 @@ async def get_recommendation_history(
 
         recommendations = []
         for row in rows:
-            recommendations.append(RecommendationResponse(
-                id=row.id,
-                content_id=row.content_id,
-                title=row.title,
-                subject=row.subject,
-                difficulty=row.difficulty,
-                content_type=row.content_type,
-                duration_minutes=row.duration_minutes,
-                confidence_score=row.confidence_score,
-                reasoning=row.reasoning,
-                recommended_at=row.recommended_at,
-                metadata=row.metadata
-            ))
+            recommendations.append(
+                RecommendationResponse(
+                    id=row.id,
+                    content_id=row.content_id,
+                    title=row.title,
+                    subject=row.subject,
+                    difficulty=row.difficulty,
+                    content_type=row.content_type,
+                    duration_minutes=row.duration_minutes,
+                    confidence_score=row.confidence_score,
+                    reasoning=row.reasoning,
+                    recommended_at=row.recommended_at,
+                    metadata=row.metadata,
+                )
+            )
 
         return recommendations
 
@@ -246,11 +256,10 @@ async def get_recommendation_history(
         logger.error(
             "Failed to retrieve recommendation history",
             user_id=current_user.id,
-            error=str(e)
+            error=str(e),
         )
         raise HTTPException(
-            status_code=500,
-            detail="Failed to retrieve recommendation history"
+            status_code=500, detail="Failed to retrieve recommendation history"
         )
 
 
@@ -258,7 +267,7 @@ async def get_recommendation_history(
 async def submit_recommendation_feedback(
     feedback: RecommendationFeedback,
     current_user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ) -> Dict[str, str]:
     """
     Submit feedback on a recommendation.
@@ -273,24 +282,24 @@ async def submit_recommendation_feedback(
     """
     try:
         # Verify recommendation ownership
-        result = await db.execute("""
+        result = await db.execute(
+            """
             SELECT id FROM recommendations
             WHERE id = :rec_id AND user_id = :user_id
-        """, {"rec_id": feedback.recommendation_id, "user_id": current_user.id})
+        """,
+            {"rec_id": feedback.recommendation_id, "user_id": current_user.id},
+        )
 
         recommendation = result.first()
 
         if not recommendation:
-            raise HTTPException(
-                status_code=404,
-                detail="Recommendation not found"
-            )
+            raise HTTPException(status_code=404, detail="Recommendation not found")
 
         # Update recommendation with feedback
         update_data = {
             "accepted": feedback.accepted,
             "user_rating": feedback.user_rating,
-            "performance_improvement": feedback.performance_improvement
+            "performance_improvement": feedback.performance_improvement,
         }
 
         if feedback.accepted:
@@ -302,7 +311,8 @@ async def submit_recommendation_feedback(
             existing_metadata["user_feedback"] = feedback.feedback_text
             update_data["metadata"] = existing_metadata
 
-        await db.execute("""
+        await db.execute(
+            """
             UPDATE recommendations
             SET accepted = :accepted,
                 accepted_at = :accepted_at,
@@ -310,11 +320,13 @@ async def submit_recommendation_feedback(
                 performance_improvement = :performance_improvement,
                 metadata = :metadata
             WHERE id = :rec_id AND user_id = :user_id
-        """, {
-            "rec_id": feedback.recommendation_id,
-            "user_id": current_user.id,
-            **update_data
-        })
+        """,
+            {
+                "rec_id": feedback.recommendation_id,
+                "user_id": current_user.id,
+                **update_data,
+            },
+        )
 
         await db.commit()
 
@@ -322,7 +334,7 @@ async def submit_recommendation_feedback(
             "Recommendation feedback submitted",
             recommendation_id=feedback.recommendation_id,
             user_id=current_user.id,
-            accepted=feedback.accepted
+            accepted=feedback.accepted,
         )
 
         return {"message": "Feedback submitted successfully"}
@@ -334,18 +346,14 @@ async def submit_recommendation_feedback(
             "Failed to submit recommendation feedback",
             recommendation_id=feedback.recommendation_id,
             user_id=current_user.id,
-            error=str(e)
+            error=str(e),
         )
-        raise HTTPException(
-            status_code=500,
-            detail="Failed to submit feedback"
-        )
+        raise HTTPException(status_code=500, detail="Failed to submit feedback")
 
 
 @router.get("/stats")
 async def get_recommendation_stats(
-    current_user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db)
+    current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)
 ) -> Dict[str, Any]:
     """
     Get recommendation statistics for the user.
@@ -359,7 +367,8 @@ async def get_recommendation_stats(
     """
     try:
         # Get basic stats
-        result = await db.execute("""
+        result = await db.execute(
+            """
             SELECT
                 COUNT(*) as total_recommendations,
                 COUNT(CASE WHEN accepted = true THEN 1 END) as accepted_count,
@@ -367,21 +376,26 @@ async def get_recommendation_stats(
                 AVG(user_rating) as avg_rating
             FROM recommendations
             WHERE user_id = :user_id
-        """, {"user_id": current_user.id})
+        """,
+            {"user_id": current_user.id},
+        )
 
         stats = result.first()
 
         # Get recent performance
-        result = await db.execute("""
+        result = await db.execute(
+            """
             SELECT AVG(performance_improvement) as recent_performance
             FROM recommendations
             WHERE user_id = :user_id
                 AND recommended_at >= :since
                 AND performance_improvement IS NOT NULL
-        """, {
-            "user_id": current_user.id,
-            "since": datetime.utcnow() - timedelta(days=30)
-        })
+        """,
+            {
+                "user_id": current_user.id,
+                "since": datetime.utcnow() - timedelta(days=30),
+            },
+        )
 
         recent_perf = result.first()
 
@@ -393,18 +407,19 @@ async def get_recommendation_stats(
             ),
             "average_confidence": round(stats.avg_confidence or 0, 3),
             "average_rating": round(stats.avg_rating or 0, 2),
-            "recent_performance_improvement": round(recent_perf.recent_performance or 0, 3)
+            "recent_performance_improvement": round(
+                recent_perf.recent_performance or 0, 3
+            ),
         }
 
     except Exception as e:
         logger.error(
             "Failed to retrieve recommendation stats",
             user_id=current_user.id,
-            error=str(e)
+            error=str(e),
         )
         raise HTTPException(
-            status_code=500,
-            detail="Failed to retrieve recommendation statistics"
+            status_code=500, detail="Failed to retrieve recommendation statistics"
         )
 
 
@@ -413,7 +428,7 @@ async def get_trending_content(
     subject: Optional[str] = None,
     limit: int = Query(default=10, ge=1, le=50),
     current_user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ) -> List[Dict[str, Any]]:
     """
     Get trending learning content based on community acceptance rates.
@@ -468,36 +483,33 @@ async def get_trending_content(
 
         trending_content = []
         for row in rows:
-            trending_content.append({
-                "content_id": row.content_id,
-                "title": row.title,
-                "subject": row.subject,
-                "difficulty": row.difficulty,
-                "content_type": row.content_type,
-                "duration_minutes": row.duration_minutes,
-                "recommendation_count": row.recommendation_count,
-                "acceptance_rate": round(row.acceptance_rate * 100, 2),
-                "average_confidence": round(row.avg_confidence, 3)
-            })
+            trending_content.append(
+                {
+                    "content_id": row.content_id,
+                    "title": row.title,
+                    "subject": row.subject,
+                    "difficulty": row.difficulty,
+                    "content_type": row.content_type,
+                    "duration_minutes": row.duration_minutes,
+                    "recommendation_count": row.recommendation_count,
+                    "acceptance_rate": round(row.acceptance_rate * 100, 2),
+                    "average_confidence": round(row.avg_confidence, 3),
+                }
+            )
 
         return trending_content
 
     except Exception as e:
         logger.error(
-            "Failed to retrieve trending content",
-            user_id=current_user.id,
-            error=str(e)
+            "Failed to retrieve trending content", user_id=current_user.id, error=str(e)
         )
         raise HTTPException(
-            status_code=500,
-            detail="Failed to retrieve trending content"
+            status_code=500, detail="Failed to retrieve trending content"
         )
 
 
 async def get_user_recent_eeg_features(
-    db: AsyncSession,
-    user_id: int,
-    minutes: int = 30
+    db: AsyncSession, user_id: int, minutes: int = 30
 ) -> Dict[str, Any]:
     """
     Get user's recent EEG features for recommendation generation.
@@ -513,7 +525,8 @@ async def get_user_recent_eeg_features(
     try:
         since_time = datetime.utcnow() - timedelta(minutes=minutes)
 
-        result = await db.execute("""
+        result = await db.execute(
+            """
             SELECT
                 AVG((processed_features->>'attention_score')::float) as avg_attention,
                 AVG((processed_features->>'stress_level')::float) as avg_stress,
@@ -524,7 +537,9 @@ async def get_user_recent_eeg_features(
             WHERE user_id = :user_id
                 AND timestamp >= :since
                 AND processed_features IS NOT NULL
-        """, {"user_id": user_id, "since": since_time})
+        """,
+            {"user_id": user_id, "since": since_time},
+        )
 
         stats = result.first()
 
@@ -535,7 +550,7 @@ async def get_user_recent_eeg_features(
                 "stress_level": 0.5,
                 "cognitive_load": 0.5,
                 "signal_quality": 0.5,
-                "data_points": 0
+                "data_points": 0,
             }
 
         return {
@@ -543,20 +558,16 @@ async def get_user_recent_eeg_features(
             "stress_level": stats.avg_stress or 0.5,
             "cognitive_load": stats.avg_cognitive_load or 0.5,
             "signal_quality": stats.avg_quality or 0.5,
-            "data_points": stats.data_points
+            "data_points": stats.data_points,
         }
 
     except Exception as e:
-        logger.error(
-            "Failed to get recent EEG features",
-            user_id=user_id,
-            error=str(e)
-        )
+        logger.error("Failed to get recent EEG features", user_id=user_id, error=str(e))
         # Return default values on error
         return {
             "attention_score": 0.5,
             "stress_level": 0.5,
             "cognitive_load": 0.5,
             "signal_quality": 0.5,
-            "data_points": 0
+            "data_points": 0,
         }

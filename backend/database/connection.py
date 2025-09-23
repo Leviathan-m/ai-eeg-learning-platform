@@ -25,6 +25,7 @@ from utils.logging_config import get_request_logger
 
 class Base(DeclarativeBase):
     """Base class for all database models."""
+
     pass
 
 
@@ -52,9 +53,7 @@ async def init_db() -> None:
 
         # Create session factory
         _async_session_maker = async_sessionmaker(
-            _engine,
-            class_=AsyncSession,
-            expire_on_commit=False
+            _engine, class_=AsyncSession, expire_on_commit=False
         )
 
         # Create tables
@@ -125,7 +124,7 @@ async def get_raw_connection() -> asyncpg.Connection:
             port=parsed.port,
             user=parsed.username,
             password=parsed.password,
-            database=parsed.path.lstrip('/'),
+            database=parsed.path.lstrip("/"),
             min_size=5,
             max_size=20,
         )
@@ -171,19 +170,11 @@ async def health_check() -> Dict[str, Any]:
     try:
         async with get_raw_db() as conn:
             result = await conn.fetchval("SELECT 1")
-            return {
-                "status": "healthy",
-                "database": "connected",
-                "response": result
-            }
+            return {"status": "healthy", "database": "connected", "response": result}
     except Exception as e:
         logger = get_request_logger("database")
         logger.error("Database health check failed", error=str(e))
-        return {
-            "status": "unhealthy",
-            "database": "disconnected",
-            "error": str(e)
-        }
+        return {"status": "unhealthy", "database": "disconnected", "error": str(e)}
 
 
 # Custom JSON encoder for numpy types
@@ -193,7 +184,7 @@ class NumpyEncoder(json.JSONEncoder):
     """
 
     def default(self, obj):
-        if hasattr(obj, 'tolist'):
+        if hasattr(obj, "tolist"):
             return obj.tolist()
         if isinstance(obj, np.integer):
             return int(obj)

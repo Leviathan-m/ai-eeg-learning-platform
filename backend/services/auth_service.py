@@ -73,14 +73,14 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
     else:
-        expire = datetime.utcnow() + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+        expire = datetime.utcnow() + timedelta(
+            minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
+        )
 
     to_encode.update({"exp": expire, "iat": datetime.utcnow()})
 
     encoded_jwt = jwt.encode(
-        to_encode,
-        settings.SECRET_KEY,
-        algorithm=settings.JWT_ALGORITHM
+        to_encode, settings.SECRET_KEY, algorithm=settings.JWT_ALGORITHM
     )
 
     return encoded_jwt
@@ -98,9 +98,7 @@ def verify_token(token: str) -> Optional[dict]:
     """
     try:
         payload = jwt.decode(
-            token,
-            settings.SECRET_KEY,
-            algorithms=[settings.JWT_ALGORITHM]
+            token, settings.SECRET_KEY, algorithms=[settings.JWT_ALGORITHM]
         )
         return payload
     except jwt.ExpiredSignatureError:
@@ -111,7 +109,9 @@ def verify_token(token: str) -> Optional[dict]:
         return None
 
 
-async def authenticate_user(db: AsyncSession, username: str, password: str) -> Optional[User]:
+async def authenticate_user(
+    db: AsyncSession, username: str, password: str
+) -> Optional[User]:
     """
     Authenticate a user with username/email and password.
 
@@ -125,9 +125,12 @@ async def authenticate_user(db: AsyncSession, username: str, password: str) -> O
     """
     try:
         # Try to find user by username first, then by email
-        result = await db.execute("""
+        result = await db.execute(
+            """
             SELECT * FROM users WHERE username = :username OR email = :username
-        """, {"username": username})
+        """,
+            {"username": username},
+        )
 
         user = result.first()
 
@@ -146,17 +149,13 @@ async def authenticate_user(db: AsyncSession, username: str, password: str) -> O
         return user
 
     except Exception as e:
-        logger.error(
-            "Authentication error",
-            username=username,
-            error=str(e)
-        )
+        logger.error("Authentication error", username=username, error=str(e))
         return None
 
 
 async def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ) -> User:
     """
     Get current authenticated user from JWT token.
@@ -190,9 +189,12 @@ async def get_current_user(
             )
 
         # Get user from database
-        result = await db.execute("""
+        result = await db.execute(
+            """
             SELECT * FROM users WHERE username = :username
-        """, {"username": username})
+        """,
+            {"username": username},
+        )
 
         user = result.first()
 
@@ -205,8 +207,7 @@ async def get_current_user(
 
         if not user.is_active:
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Inactive user"
+                status_code=status.HTTP_400_BAD_REQUEST, detail="Inactive user"
             )
 
         return user
@@ -222,7 +223,9 @@ async def get_current_user(
         )
 
 
-async def get_current_active_user(current_user: User = Depends(get_current_user)) -> User:
+async def get_current_active_user(
+    current_user: User = Depends(get_current_user),
+) -> User:
     """
     Get current active user (alias for get_current_user).
 
@@ -250,8 +253,7 @@ async def get_current_superuser(current_user: User = Depends(get_current_user)) 
     """
     if not current_user.is_superuser:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Not enough permissions"
+            status_code=status.HTTP_403_FORBIDDEN, detail="Not enough permissions"
         )
     return current_user
 
@@ -269,10 +271,7 @@ def create_user_token(user: User) -> str:
     return create_access_token(data={"sub": user.username})
 
 
-async def validate_token_and_get_user(
-    token: str,
-    db: AsyncSession
-) -> Optional[User]:
+async def validate_token_and_get_user(token: str, db: AsyncSession) -> Optional[User]:
     """
     Validate token and return user if valid.
 
@@ -292,9 +291,12 @@ async def validate_token_and_get_user(
         if not username:
             return None
 
-        result = await db.execute("""
+        result = await db.execute(
+            """
             SELECT * FROM users WHERE username = :username
-        """, {"username": username})
+        """,
+            {"username": username},
+        )
 
         user = result.first()
         return user if user and user.is_active else None
@@ -339,9 +341,7 @@ def check_password_strength(password: str) -> bool:
 
 
 async def update_user_password(
-    db: AsyncSession,
-    user_id: int,
-    new_password: str
+    db: AsyncSession, user_id: int, new_password: str
 ) -> bool:
     """
     Update user's password.
@@ -357,11 +357,14 @@ async def update_user_password(
     try:
         hashed_password = get_password_hash(new_password)
 
-        await db.execute("""
+        await db.execute(
+            """
             UPDATE users
             SET hashed_password = :hashed_password, updated_at = CURRENT_TIMESTAMP
             WHERE id = :user_id
-        """, {"hashed_password": hashed_password, "user_id": user_id})
+        """,
+            {"hashed_password": hashed_password, "user_id": user_id},
+        )
 
         await db.commit()
 
@@ -369,9 +372,5 @@ async def update_user_password(
         return True
 
     except Exception as e:
-        logger.error(
-            "Password update failed",
-            user_id=user_id,
-            error=str(e)
-        )
+        logger.error("Password update failed", user_id=user_id, error=str(e))
         return False
