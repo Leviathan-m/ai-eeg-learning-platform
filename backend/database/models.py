@@ -8,26 +8,27 @@ Author: AI-EEG Learning Platform Team
 """
 
 from datetime import datetime
-from typing import Dict, List, Optional, Any
+from typing import Any, Dict, List, Optional
+
 from sqlalchemy import (
-    Column,
-    Integer,
-    String,
-    DateTime,
-    Text,
-    Boolean,
     JSON,
+    Boolean,
+    CheckConstraint,
+    Column,
+    DateTime,
     Float,
     ForeignKey,
     Index,
+    Integer,
+    String,
+    Text,
     UniqueConstraint,
-    CheckConstraint,
 )
-from sqlalchemy.sql import func
-from sqlalchemy.orm import relationship, Mapped, mapped_column
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.sql import func
 
-from .connection import Base, get_db, serialize_for_db, deserialize_from_db
+from .connection import Base, deserialize_from_db, get_db, serialize_for_db
 
 
 class User(Base):

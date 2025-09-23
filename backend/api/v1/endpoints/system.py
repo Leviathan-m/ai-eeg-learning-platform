@@ -7,14 +7,14 @@ Author: AI-EEG Learning Platform Team
 """
 
 import time
-from typing import Dict, List, Any, Optional
-from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel, Field
-from sqlalchemy.ext.asyncio import AsyncSession
+from typing import Any, Dict, List, Optional
 
 from database.connection import get_db, health_check
 from database.models import SystemMetrics
+from fastapi import APIRouter, Depends, HTTPException
+from pydantic import BaseModel, Field
 from services.auth_service import get_current_user
+from sqlalchemy.ext.asyncio import AsyncSession
 from utils.config import settings
 from utils.logging_config import get_request_logger
 

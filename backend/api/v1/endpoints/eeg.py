@@ -7,15 +7,15 @@ Author: AI-EEG Learning Platform Team
 """
 
 from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Any
-from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
-from pydantic import BaseModel, Field
-from sqlalchemy.ext.asyncio import AsyncSession
+from typing import Any, Dict, List, Optional
 
 from database.connection import get_db
-from database.models import EEGSession, EEGDataPoint, User
+from database.models import EEGDataPoint, EEGSession, User
 from eeg_processing.manager import EEGProcessingManager
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
+from pydantic import BaseModel, Field
 from services.auth_service import get_current_user
+from sqlalchemy.ext.asyncio import AsyncSession
 from utils.logging_config import get_request_logger
 
 router = APIRouter()

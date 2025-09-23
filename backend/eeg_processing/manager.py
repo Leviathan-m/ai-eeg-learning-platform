@@ -11,17 +11,17 @@ import asyncio
 import json
 import time
 import uuid
-from typing import Dict, List, Optional, Any
 from datetime import datetime
+from typing import Any, Dict, List, Optional
 
 import numpy as np
-
-from .processor import EEGProcessor
-from database.models import EEGSession, EEGDataPoint
 from database.connection import get_db
+from database.models import EEGDataPoint, EEGSession
 from services.cache_service import CacheService
 from utils.config import settings
 from utils.logging_config import get_request_logger
+
+from .processor import EEGProcessor
 
 
 class EEGProcessingManager:

@@ -6,10 +6,10 @@ Redis-based caching service for improved performance and reduced database load.
 Author: AI-EEG Learning Platform Team
 """
 
+import asyncio
 import json
 import pickle
-from typing import Any, Optional, Dict, List
-import asyncio
+from typing import Any, Dict, List, Optional
 
 try:
     import redis.asyncio as redis

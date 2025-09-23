@@ -19,7 +19,6 @@ from typing import Dict, List, Optional, Tuple, Union
 import numpy as np
 import scipy.signal as signal
 from scipy import stats
-
 from utils.config import settings
 from utils.logging_config import get_request_logger
 

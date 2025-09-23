@@ -7,18 +7,17 @@ for PostgreSQL using asyncpg and SQLAlchemy.
 Author: AI-EEG Learning Platform Team
 """
 
-import asyncpg
 import json
 from contextlib import asynccontextmanager
-from typing import AsyncGenerator, Optional, Dict, Any
+from typing import Any, AsyncGenerator, Dict, Optional
 from urllib.parse import urlparse
+
+import asyncpg
 import numpy as np
-
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
+from sqlalchemy import JSON, Boolean, Column, DateTime, Float, Integer, String, Text
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase
-from sqlalchemy import Column, Integer, String, DateTime, Text, Boolean, JSON, Float
 from sqlalchemy.sql import func
-
 from utils.config import settings
 from utils.logging_config import get_request_logger
 

@@ -8,7 +8,7 @@ Author: AI-EEG Learning Platform Team
 
 from fastapi import APIRouter
 
-from .v1.endpoints import users, eeg, recommendations, learning, analytics, system
+from .v1.endpoints import analytics, eeg, learning, recommendations, system, users
 
 # Main API router
 api_router = APIRouter()

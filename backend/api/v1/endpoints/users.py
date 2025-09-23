@@ -7,19 +7,19 @@ Author: AI-EEG Learning Platform Team
 """
 
 from datetime import datetime
-from typing import Dict, List, Optional, Any
-from fastapi import APIRouter, Depends, HTTPException, status
-from pydantic import BaseModel, Field, EmailStr
-from sqlalchemy.ext.asyncio import AsyncSession
+from typing import Any, Dict, List, Optional
 
 from database.connection import get_db
-from database.models import User, EEGSession, LearningSession
+from database.models import EEGSession, LearningSession, User
+from fastapi import APIRouter, Depends, HTTPException, status
+from pydantic import BaseModel, EmailStr, Field
 from services.auth_service import (
-    get_current_user,
     authenticate_user,
     create_access_token,
+    get_current_user,
     get_password_hash,
 )
+from sqlalchemy.ext.asyncio import AsyncSession
 from utils.logging_config import get_request_logger
 
 router = APIRouter()

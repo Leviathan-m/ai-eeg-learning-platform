@@ -17,15 +17,14 @@ from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 
 import structlog
+import uvicorn
+from api.routes import api_router
+from database.connection import close_db, init_db
+from eeg_processing.manager import EEGProcessingManager
 from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.responses import JSONResponse
-import uvicorn
-
-from api.routes import api_router
-from database.connection import init_db, close_db
-from eeg_processing.manager import EEGProcessingManager
 from services.recommendation_service import RecommendationService
 from utils.config import settings
 from utils.logging_config import setup_logging

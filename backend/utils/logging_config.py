@@ -7,7 +7,7 @@ human-readable format for development.
 
 import logging
 import sys
-from typing import Dict, Any
+from typing import Any, Dict
 
 import structlog
 from pythonjsonlogger import jsonlogger

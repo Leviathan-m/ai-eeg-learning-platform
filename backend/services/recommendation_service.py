@@ -10,13 +10,12 @@ Author: AI-EEG Learning Platform Team
 import asyncio
 import json
 from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Any, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
-from sqlalchemy.ext.asyncio import AsyncSession
-
 from database.connection import get_db
-from database.models import User, LearningContent, Recommendation, LearningSession
+from database.models import LearningContent, LearningSession, Recommendation, User
+from sqlalchemy.ext.asyncio import AsyncSession
 from utils.logging_config import get_request_logger
 
 logger = get_request_logger("recommendation_service")
