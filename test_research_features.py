@@ -11,11 +11,12 @@ This script tests the core research implementations:
 Usage: python test_research_features.py
 """
 
-import sys
 import os
-import numpy as np
+import sys
 import time
-from typing import Dict, Any
+from typing import Any, Dict
+
+import numpy as np
 
 # Add backend to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "backend"))

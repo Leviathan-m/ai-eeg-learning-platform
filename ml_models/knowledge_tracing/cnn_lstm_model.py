@@ -15,12 +15,13 @@ Key Features:
 Author: AI-EEG Learning Platform Research Team
 """
 
+import time
+from typing import Any, Dict, Optional, Tuple
+
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import numpy as np
-from typing import Tuple, Optional, Dict, Any
-import time
 
 
 class EEGFeatureExtractor(nn.Module):
