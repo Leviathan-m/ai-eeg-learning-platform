@@ -119,8 +119,13 @@ extend-exclude = '''
 profile = "black"
 multi_line_output = 3
 line_length = 88
-known_first_party = ["backend"]
+known_first_party = ["backend", "ml_models"]
 skip = ["__init__.py"]
+skip_glob = [
+    "**/node_modules/**",
+    "venv/**",
+    ".venv/**",
+]
 
 # Mypy disabled for integration-heavy backend
 # [tool.mypy]
