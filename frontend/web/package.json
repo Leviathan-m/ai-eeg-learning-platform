@@ -60,9 +60,5 @@
     ]
   },
   "proxy": "http://localhost:8000",
-  "homepage": "/",
-  "overrides": {
-    "ajv": "^6.12.6",
-    "ajv-keywords": "^3.5.2"
-  }
+  "homepage": "/"
 }
