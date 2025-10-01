@@ -152,14 +152,8 @@ module = [
     "backend.api.*",
     "backend.services.*",
     "backend.database.*",
-]
-ignore_errors = true
-
-[[tool.mypy.overrides]]
-module = [
-    "backend.eeg_processing.manager",
-    "backend.eeg_processing.processor",
-    "backend.utils.logging_config",
+    "backend.eeg_processing.*",
+    "backend.utils.*",
     "backend.main",
 ]
 ignore_errors = true
