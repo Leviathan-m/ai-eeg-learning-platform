@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import {
   Grid,
   Card,
@@ -16,7 +16,7 @@ import {
   School,
   Timeline,
 } from '@mui/icons-material';
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -42,7 +42,6 @@ ChartJS.register(
 );
 
 const Dashboard = () => {
-  const dispatch = useDispatch();
   const metrics = useSelector(selectCurrentMetrics);
   const connection = useSelector(selectConnectionStatus);
 

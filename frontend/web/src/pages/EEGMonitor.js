@@ -1,6 +1,6 @@
 import React from 'react';
 import { Typography, Box, Card, CardContent, Button, Alert } from '@mui/material';
-import { Psychology, Wifi, WifiOff } from '@mui/icons-material';
+import { Psychology, WifiOff } from '@mui/icons-material';
 
 const EEGMonitor = () => {
   return (

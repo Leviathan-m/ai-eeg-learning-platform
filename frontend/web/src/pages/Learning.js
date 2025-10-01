@@ -1,6 +1,6 @@
 import React from 'react';
 import { Typography, Box, Card, CardContent, Button, Grid, Chip } from '@mui/material';
-import { School, PlayArrow } from '@mui/icons-material';
+import { PlayArrow } from '@mui/icons-material';
 
 const Learning = () => {
   const sampleContent = [

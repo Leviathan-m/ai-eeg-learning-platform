@@ -1,6 +1,5 @@
 import React from 'react';
 import { Typography, Box, Card, CardContent, Grid } from '@mui/material';
-import { Analytics as AnalyticsIcon, TrendingUp } from '@mui/icons-material';
 
 const Analytics = () => {
   return (

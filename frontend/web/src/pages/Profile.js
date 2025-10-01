@@ -1,6 +1,5 @@
 import React from 'react';
 import { Typography, Box, Card, CardContent } from '@mui/material';
-import { Person } from '@mui/icons-material';
 
 const Profile = () => {
   return (
