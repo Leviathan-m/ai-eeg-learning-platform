@@ -34,11 +34,7 @@ def setup_logging() -> None:
     shared_processors: list[
         Callable[
             [Any, str, MutableMapping[str, Any]],
-            Mapping[str, Any]
-            | str
-            | bytes
-            | bytearray
-            | tuple[Any, ...],
+            Mapping[str, Any] | str | bytes | bytearray | tuple[Any, ...],
         ]
     ] = [
         structlog.stdlib.filter_by_level,
@@ -56,11 +52,7 @@ def setup_logging() -> None:
         processors: list[
             Callable[
                 [Any, str, MutableMapping[str, Any]],
-                Mapping[str, Any]
-                | str
-                | bytes
-                | bytearray
-                | tuple[Any, ...],
+                Mapping[str, Any] | str | bytes | bytearray | tuple[Any, ...],
             ]
         ] = shared_processors + [
             structlog.stdlib.ProcessorFormatter.wrap_for_formatter,
