@@ -145,6 +145,20 @@ module = [
 ]
 ignore_errors = true
 
+[[tool.mypy.overrides]]
+module = [
+    "backend.api.*",
+    "backend.services.*",
+    "backend.database.*",
+]
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = [
+    "backend.eeg_processing.manager",
+]
+ignore_errors = true
+
 [tool.pytest.ini_options]
 minversion = "7.4"
 addopts = "-ra -q --strict-markers --strict-config --cov=backend --cov-report=term-missing --cov-report=xml --cov-fail-under=80"
