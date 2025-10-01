@@ -129,7 +129,7 @@ skip = ["__init__.py"]
 
 [tool.pytest.ini_options]
 minversion = "7.4"
-addopts = "-ra -q --strict-markers --strict-config --cov=backend --cov-report=term-missing --cov-report=xml --cov-fail-under=80"
+addopts = "-ra -q --strict-markers --strict-config --cov=. --cov-report=term-missing --cov-report=xml --cov-fail-under=80"
 testpaths = ["tests"]
 markers = [
     "unit: Unit tests",
