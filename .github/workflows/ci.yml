@@ -52,8 +52,9 @@ jobs:
 
     - name: Run tests
       run: |
-        pytest --cov=. --cov-report=xml --cov-report=term-missing
+        pytest --cov=backend --cov-report=xml --cov-report=term-missing
       env:
+        PYTHONPATH: ${{ github.workspace }}
         DATABASE_URL: sqlite:///./test.db
         REDIS_URL: redis://localhost:6379
         SECRET_KEY: test-secret-key-for-ci
