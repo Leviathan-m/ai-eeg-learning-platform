@@ -122,15 +122,10 @@ line_length = 88
 known_first_party = ["backend"]
 skip = ["__init__.py"]
 
-[tool.mypy]
-python_version = "3.11"
-ignore_missing_imports = true
-
-[[tool.mypy.overrides]]
-module = [
-    "backend.*",
-]
-ignore_errors = true
+# Mypy disabled for integration-heavy backend
+# [tool.mypy]
+# python_version = "3.11"
+# ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 minversion = "7.4"
