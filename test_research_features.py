@@ -18,30 +18,38 @@ import time
 from typing import Dict, Any
 
 # Add backend to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'backend'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "backend"))
+
 
 def test_basic_imports():
     """Test basic library imports."""
     print("🔬 Testing Research Feature Imports...")
     try:
         import torch
+
         print(f"✅ PyTorch {torch.__version__} loaded")
 
         import numpy as np
+
         print(f"✅ NumPy {np.__version__} loaded")
 
         import scipy
+
         print(f"✅ SciPy {scipy.__version__} loaded")
 
         # Test research-specific imports
         try:
             from eeg_processing.processor import EEGProcessor
+
             print("✅ EEG Processor (Research-based) loaded")
         except ImportError as e:
             print(f"⚠️ EEG Processor import failed: {e}")
 
         try:
-            from ml_models.knowledge_tracing.cnn_lstm_model import CognitiveLoadPredictor
+            from ml_models.knowledge_tracing.cnn_lstm_model import (
+                CognitiveLoadPredictor,
+            )
+
             print("✅ CNN-LSTM Cognitive Load Predictor loaded")
         except ImportError as e:
             print(f"⚠️ CNN-LSTM Model import failed: {e}")
@@ -51,6 +59,7 @@ def test_basic_imports():
         print(f"❌ Import failed: {e}")
         return False
 
+
 def test_eeg_processor():
     """Test research-based EEG processor."""
     print("\n🧠 Testing EEG Processor (Research Implementation)...")
@@ -59,22 +68,24 @@ def test_eeg_processor():
 
         # Initialize processor with research parameters (14-channel Emotiv EPOC+)
         processor = EEGProcessor(
-            sampling_rate=256,
-            channels=14,  # Emotiv EPOC+ standard
-            buffer_size=1024
+            sampling_rate=256, channels=14, buffer_size=1024  # Emotiv EPOC+ standard
         )
 
         print("✅ EEG Processor initialized with research parameters:")
         print(f"   - Sampling rate: {processor.fs} Hz")
         print(f"   - Channels: {processor.channels} (Emotiv EPOC+ standard)")
-        print(f"   - Research frequency bands: {list(processor.frequency_bands.keys())}")
+        print(
+            f"   - Research frequency bands: {list(processor.frequency_bands.keys())}"
+        )
         print(f"   - Target latency: <{processor.target_latency_ms}ms")
         print(f"   - Target accuracy: {processor.target_accuracy * 100}%")
 
         # Test with synthetic EEG data
         print("\n📊 Testing EEG feature extraction...")
         n_samples = 512
-        synthetic_eeg = np.random.randn(14, n_samples) * 100e-6  # 14 channels, realistic amplitude
+        synthetic_eeg = (
+            np.random.randn(14, n_samples) * 100e-6
+        )  # 14 channels, realistic amplitude
 
         # Process EEG data
         start_time = time.time()
@@ -84,10 +95,16 @@ def test_eeg_processor():
         print("✅ EEG processing completed:")
         print(f"   - Processing time: {processing_time:.2f}ms")
         print(f"   - Features extracted: {len(features)}")
-        print(f"   - Target latency achieved: {processing_time < processor.target_latency_ms}")
+        print(
+            f"   - Target latency achieved: {processing_time < processor.target_latency_ms}"
+        )
 
         # Check research-specific features
-        research_features = ['theta_alpha_ratio', 'gamma_power_relative', 'connectivity_avg']
+        research_features = [
+            "theta_alpha_ratio",
+            "gamma_power_relative",
+            "connectivity_avg",
+        ]
         for feature in research_features:
             if feature in features:
                 print(f"   - {feature}: {features[feature]:.4f}")
@@ -99,8 +116,10 @@ def test_eeg_processor():
     except Exception as e:
         print(f"❌ EEG Processor test failed: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def test_cnn_lstm_model():
     """Test CNN-LSTM cognitive load prediction model."""
@@ -136,8 +155,10 @@ def test_cnn_lstm_model():
     except Exception as e:
         print(f"❌ CNN-LSTM Model test failed: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def test_dynamic_difficulty_service():
     """Test dynamic difficulty adjustment service."""
@@ -149,34 +170,39 @@ def test_dynamic_difficulty_service():
 
         print("✅ Dynamic Difficulty Service initialized:")
         print(f"   - Service type: Research-validated algorithm")
-        print(f"   - Optimal load range: {service.progression_model['optimal_load_range']}")
-        print(f"   - Target latency: <{service._DynamicDifficultyService__class__.target_latency_ms}ms")
+        print(
+            f"   - Optimal load range: {service.progression_model['optimal_load_range']}"
+        )
+        print(
+            f"   - Target latency: <{service._DynamicDifficultyService__class__.target_latency_ms}ms"
+        )
 
         # Test difficulty adjustment
         print("\n⚙️ Testing difficulty adjustment logic...")
 
         # Mock EEG features (high cognitive load scenario)
         eeg_features = {
-            'theta_alpha_ratio': 1.8,  # High cognitive load
-            'gamma_power_relative': 0.25,
-            'connectivity_avg': 0.2
+            "theta_alpha_ratio": 1.8,  # High cognitive load
+            "gamma_power_relative": 0.25,
+            "connectivity_avg": 0.2,
         }
 
         # Mock learning context
         learning_context = {
-            'success_rate': 0.6,
-            'time_spent_seconds': 450,
-            'error_rate': 0.3,
-            'session_duration_minutes': 15
+            "success_rate": 0.6,
+            "time_spent_seconds": 450,
+            "error_rate": 0.3,
+            "session_duration_minutes": 15,
         }
 
         import asyncio
+
         async def test_adjustment():
             result = await service.adjust_difficulty(
                 user_id="test_user",
                 current_difficulty=4,
                 eeg_features=eeg_features,
-                learning_context=learning_context
+                learning_context=learning_context,
             )
 
             print("✅ Difficulty adjustment completed:")
@@ -194,8 +220,10 @@ def test_dynamic_difficulty_service():
     except Exception as e:
         print(f"❌ Dynamic Difficulty Service test failed: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def test_research_integration():
     """Test complete research integration pipeline."""
@@ -210,6 +238,7 @@ def test_research_integration():
 
         # 2. Process EEG with research algorithm
         from eeg_processing.processor import EEGProcessor
+
         processor = EEGProcessor(channels=n_channels)
 
         start_time = time.time()
@@ -218,6 +247,7 @@ def test_research_integration():
 
         # 3. Predict cognitive load with CNN-LSTM
         from ml_models.knowledge_tracing.cnn_lstm_model import CognitiveLoadPredictor
+
         predictor = CognitiveLoadPredictor()
 
         prediction = predictor.predict(eeg_data)
@@ -225,26 +255,32 @@ def test_research_integration():
 
         # 4. Apply dynamic difficulty adjustment
         from services.dynamic_difficulty_service import DynamicDifficultyService
+
         service = DynamicDifficultyService()
 
         import asyncio
+
         async def complete_test():
             adjustment = await service.adjust_difficulty(
                 user_id="research_test",
                 current_difficulty=3,
                 eeg_features=features,
                 learning_context={
-                    'success_rate': 0.75,
-                    'time_spent_seconds': 300,
-                    'error_rate': 0.2,
-                    'session_duration_minutes': 10
-                }
+                    "success_rate": 0.75,
+                    "time_spent_seconds": 300,
+                    "error_rate": 0.2,
+                    "session_duration_minutes": 10,
+                },
             )
 
             print("✅ Complete research pipeline executed:")
             print(f"   - EEG Processing: {processing_time:.2f}ms")
-            print(f"   - Cognitive Load Prediction: {prediction['cognitive_load_level']} ({prediction['confidence_score']:.3f})")
-            print(f"   - Difficulty Adjustment: {adjustment.current_difficulty} → {adjustment.recommended_difficulty}")
+            print(
+                f"   - Cognitive Load Prediction: {prediction['cognitive_load_level']} ({prediction['confidence_score']:.3f})"
+            )
+            print(
+                f"   - Difficulty Adjustment: {adjustment.current_difficulty} → {adjustment.recommended_difficulty}"
+            )
             print(f"   - Total Pipeline Time: {total_time:.2f}ms")
             print(f"   - Target Performance Achieved: {total_time < 100}")
 
@@ -255,8 +291,10 @@ def test_research_integration():
     except Exception as e:
         print(f"❌ Research integration test failed: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def main():
     """Run all research feature tests."""
@@ -302,6 +340,7 @@ def main():
         print(f"\n⚠️ {total - passed} tests failed. Please check the implementation.")
 
     return passed == total
+
 
 if __name__ == "__main__":
     success = main()

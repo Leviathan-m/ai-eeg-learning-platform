@@ -39,15 +39,17 @@ class EEGFeatureExtractor(nn.Module):
 
         # Frequency bands (Hz) - research validated
         self.freq_bands = {
-            'delta': (0.5, 4),
-            'theta': (4, 8),
-            'alpha': (8, 12),
-            'beta': (12, 30),
-            'gamma': (30, 50)
+            "delta": (0.5, 4),
+            "theta": (4, 8),
+            "alpha": (8, 12),
+            "beta": (12, 30),
+            "gamma": (30, 50),
         }
 
         # Spatial convolution for inter-channel relationships
-        self.spatial_conv = nn.Conv2d(1, 32, kernel_size=(n_channels, 1), padding=(0, 0))
+        self.spatial_conv = nn.Conv2d(
+            1, 32, kernel_size=(n_channels, 1), padding=(0, 0)
+        )
 
         # Feature extraction layers
         self.feature_extractor = nn.Sequential(
@@ -57,7 +59,7 @@ class EEGFeatureExtractor(nn.Module):
             nn.Conv1d(64, 128, kernel_size=5, padding=2),
             nn.BatchNorm1d(128),
             nn.ReLU(),
-            nn.AdaptiveAvgPool1d(1)
+            nn.AdaptiveAvgPool1d(1),
         )
 
         # Connectivity analysis
@@ -66,10 +68,12 @@ class EEGFeatureExtractor(nn.Module):
             nn.ReLU(),
             nn.Linear(256, 128),
             nn.ReLU(),
-            nn.Linear(128, 64)
+            nn.Linear(128, 64),
         )
 
-    def compute_power_spectral_density(self, eeg_data: torch.Tensor) -> Dict[str, torch.Tensor]:
+    def compute_power_spectral_density(
+        self, eeg_data: torch.Tensor
+    ) -> Dict[str, torch.Tensor]:
         """
         Compute power spectral density for different frequency bands.
         Research-validated frequency analysis.
@@ -82,7 +86,7 @@ class EEGFeatureExtractor(nn.Module):
         power_spectrum = torch.abs(fft_data) ** 2
 
         # Frequency bins
-        freqs = torch.fft.fftfreq(seq_len, d=1/self.fs)
+        freqs = torch.fft.fftfreq(seq_len, d=1 / self.fs)
 
         band_powers = {}
         for band_name, (low_freq, high_freq) in self.freq_bands.items():
@@ -126,8 +130,8 @@ class EEGFeatureExtractor(nn.Module):
         band_powers = self.compute_power_spectral_density(x)
 
         # 2. Research-validated ratios
-        theta_alpha_ratio = band_powers['theta'] / (band_powers['alpha'] + 1e-8)
-        beta_gamma_ratio = band_powers['beta'] / (band_powers['gamma'] + 1e-8)
+        theta_alpha_ratio = band_powers["theta"] / (band_powers["alpha"] + 1e-8)
+        beta_gamma_ratio = band_powers["beta"] / (band_powers["gamma"] + 1e-8)
 
         # 3. Connectivity features
         connectivity_features = self.compute_connectivity(x)
@@ -140,13 +144,16 @@ class EEGFeatureExtractor(nn.Module):
         temporal_features = self.feature_extractor(x).squeeze(-1)
 
         # Combine all features
-        combined_features = torch.cat([
-            theta_alpha_ratio,
-            beta_gamma_ratio,
-            connectivity_features,
-            spatial_features.view(batch_size, -1),
-            temporal_features
-        ], dim=1)
+        combined_features = torch.cat(
+            [
+                theta_alpha_ratio,
+                beta_gamma_ratio,
+                connectivity_features,
+                spatial_features.view(batch_size, -1),
+                temporal_features,
+            ],
+            dim=1,
+        )
 
         return combined_features
 
@@ -167,7 +174,7 @@ class CNNLSTMModel(nn.Module):
         seq_len: int = 512,
         hidden_size: int = 128,
         num_layers: int = 2,
-        dropout: float = 0.3
+        dropout: float = 0.3,
     ):
         super().__init__()
 
@@ -184,13 +191,11 @@ class CNNLSTMModel(nn.Module):
             nn.BatchNorm1d(64),
             nn.ReLU(),
             nn.Dropout(dropout),
-
             nn.Conv1d(64, 128, kernel_size=5, padding=2),
             nn.BatchNorm1d(128),
             nn.ReLU(),
             nn.Dropout(dropout),
-
-            nn.AdaptiveAvgPool1d(seq_len // 4)  # Downsample for LSTM
+            nn.AdaptiveAvgPool1d(seq_len // 4),  # Downsample for LSTM
         )
 
         # LSTM for temporal processing
@@ -200,7 +205,7 @@ class CNNLSTMModel(nn.Module):
             num_layers=num_layers,
             dropout=dropout if num_layers > 1 else 0,
             batch_first=True,
-            bidirectional=True
+            bidirectional=True,
         )
 
         # Attention mechanism for temporal focus
@@ -208,7 +213,7 @@ class CNNLSTMModel(nn.Module):
             nn.Linear(hidden_size * 2, hidden_size),
             nn.Tanh(),
             nn.Linear(hidden_size, 1),
-            nn.Softmax(dim=1)
+            nn.Softmax(dim=1),
         )
 
         # Classification head for cognitive load prediction
@@ -219,7 +224,7 @@ class CNNLSTMModel(nn.Module):
             nn.Linear(256, 128),
             nn.ReLU(),
             nn.Dropout(dropout),
-            nn.Linear(128, 3)  # 3 classes: low, medium, high cognitive load
+            nn.Linear(128, 3),  # 3 classes: low, medium, high cognitive load
         )
 
         # Performance tracking
@@ -248,7 +253,9 @@ class CNNLSTMModel(nn.Module):
 
         # Attention mechanism
         attention_weights = self.attention(lstm_out)  # (batch_size, seq_len//4, 1)
-        attended_features = torch.sum(lstm_out * attention_weights, dim=1)  # (batch_size, hidden_size*2)
+        attended_features = torch.sum(
+            lstm_out * attention_weights, dim=1
+        )  # (batch_size, hidden_size*2)
 
         # Classification
         logits = self.classifier(attended_features)
@@ -263,9 +270,11 @@ class CNNLSTMModel(nn.Module):
             self.inference_times = self.inference_times[-100:]
 
         metadata = {
-            'inference_time_ms': inference_time,
-            'attention_weights': attention_weights.detach(),
-            'feature_importance': torch.mean(torch.abs(attended_features), dim=0).detach()
+            "inference_time_ms": inference_time,
+            "attention_weights": attention_weights.detach(),
+            "feature_importance": torch.mean(
+                torch.abs(attended_features), dim=0
+            ).detach(),
         }
 
         return predictions, metadata
@@ -288,14 +297,14 @@ class CNNLSTMModel(nn.Module):
             confidence = torch.max(predictions, dim=1)[0]
 
             # Map to cognitive load levels
-            load_levels = ['low', 'medium', 'high']
+            load_levels = ["low", "medium", "high"]
 
             results = {
-                'cognitive_load_level': load_levels[pred_class.item()],
-                'confidence_score': confidence.item(),
-                'prediction_probabilities': predictions.squeeze().tolist(),
-                'inference_time_ms': metadata['inference_time_ms'],
-                'attention_weights': metadata['attention_weights'].squeeze().tolist()
+                "cognitive_load_level": load_levels[pred_class.item()],
+                "confidence_score": confidence.item(),
+                "prediction_probabilities": predictions.squeeze().tolist(),
+                "inference_time_ms": metadata["inference_time_ms"],
+                "attention_weights": metadata["attention_weights"].squeeze().tolist(),
             }
 
             return results
@@ -308,13 +317,13 @@ class CNNLSTMModel(nn.Module):
             Performance metrics
         """
         if not self.inference_times:
-            return {'avg_inference_time': 0.0, 'max_inference_time': 0.0}
+            return {"avg_inference_time": 0.0, "max_inference_time": 0.0}
 
         return {
-            'avg_inference_time': np.mean(self.inference_times),
-            'max_inference_time': np.max(self.inference_times),
-            'min_inference_time': np.min(self.inference_times),
-            'p95_inference_time': np.percentile(self.inference_times, 95)
+            "avg_inference_time": np.mean(self.inference_times),
+            "max_inference_time": np.max(self.inference_times),
+            "min_inference_time": np.min(self.inference_times),
+            "p95_inference_time": np.percentile(self.inference_times, 95),
         }
 
 
@@ -328,7 +337,7 @@ class CognitiveLoadPredictor:
     - Performance monitoring and optimization
     """
 
-    def __init__(self, model_path: Optional[str] = None, device: str = 'auto'):
+    def __init__(self, model_path: Optional[str] = None, device: str = "auto"):
         self.device = self._setup_device(device)
         self.model = CNNLSTMModel(n_channels=14, seq_len=512)
 
@@ -340,19 +349,23 @@ class CognitiveLoadPredictor:
 
         # Research-based thresholds (validated on 120+ participants)
         self.load_thresholds = {
-            'low_medium_threshold': 0.4,  # Below this: low cognitive load
-            'medium_high_threshold': 0.7  # Above this: high cognitive load
+            "low_medium_threshold": 0.4,  # Below this: low cognitive load
+            "medium_high_threshold": 0.7,  # Above this: high cognitive load
         }
 
     def _setup_device(self, device: str) -> torch.device:
         """Setup computation device with performance optimization."""
-        if device == 'auto':
+        if device == "auto":
             if torch.cuda.is_available():
-                return torch.device('cuda')
-            elif hasattr(torch, 'backends') and hasattr(torch.backends, 'mps') and torch.backends.mps.is_available():
-                return torch.device('mps')
+                return torch.device("cuda")
+            elif (
+                hasattr(torch, "backends")
+                and hasattr(torch.backends, "mps")
+                and torch.backends.mps.is_available()
+            ):
+                return torch.device("mps")
             else:
-                return torch.device('cpu')
+                return torch.device("cpu")
         else:
             return torch.device(device)
 
@@ -392,14 +405,14 @@ class CognitiveLoadPredictor:
         Returns:
             Enhanced results with interpretation
         """
-        confidence = results['confidence_score']
-        predicted_level = results['cognitive_load_level']
+        confidence = results["confidence_score"]
+        predicted_level = results["cognitive_load_level"]
 
         # Research-based recommendations
-        if predicted_level == 'high':
+        if predicted_level == "high":
             recommendation = "Reduce difficulty - high cognitive load detected"
             action_needed = True
-        elif predicted_level == 'medium':
+        elif predicted_level == "medium":
             recommendation = "Current difficulty appropriate - monitor closely"
             action_needed = False
         else:  # low
@@ -418,11 +431,11 @@ class CognitiveLoadPredictor:
             note = "Highly confident prediction"
 
         return {
-            'recommendation': recommendation,
-            'action_needed': action_needed,
-            'confidence_level': confidence_level,
-            'interpretation_note': note,
-            'research_validation': "Based on 120+ participant study with 85%+ accuracy"
+            "recommendation": recommendation,
+            "action_needed": action_needed,
+            "confidence_level": confidence_level,
+            "interpretation_note": note,
+            "research_validation": "Based on 120+ participant study with 85%+ accuracy",
         }
 
     def load_model(self, model_path: str) -> None:
@@ -438,16 +451,16 @@ class CognitiveLoadPredictor:
         perf_stats = self.model.get_performance_stats()
 
         return {
-            'model_type': 'CNN-LSTM Hybrid',
-            'input_channels': 14,
-            'supported_devices': ['Muse', 'Emotiv EPOC+', 'Generic EEG'],
-            'performance_metrics': perf_stats,
-            'research_validation': {
-                'participants': 120,
-                'accuracy': '85%+',
-                'latency_target': '< 50ms',
-                'validation_method': 'K-fold cross-validation'
-            }
+            "model_type": "CNN-LSTM Hybrid",
+            "input_channels": 14,
+            "supported_devices": ["Muse", "Emotiv EPOC+", "Generic EEG"],
+            "performance_metrics": perf_stats,
+            "research_validation": {
+                "participants": 120,
+                "accuracy": "85%+",
+                "latency_target": "< 50ms",
+                "validation_method": "K-fold cross-validation",
+            },
         }
 
 
@@ -460,24 +473,28 @@ def create_research_dataset(participants: int = 120) -> Dict[str, Any]:
     # Generate synthetic EEG data for different cognitive load states
     n_channels = 14
     seq_len = 512
-    n_samples_per_condition = participants * 10  # 10 samples per participant per condition
+    n_samples_per_condition = (
+        participants * 10
+    )  # 10 samples per participant per condition
 
     dataset = {
-        'low_load': torch.randn(n_samples_per_condition, n_channels, seq_len),
-        'medium_load': torch.randn(n_samples_per_condition, n_channels, seq_len),
-        'high_load': torch.randn(n_samples_per_condition, n_channels, seq_len),
-        'metadata': {
-            'participants': participants,
-            'conditions': ['low_load', 'medium_load', 'high_load'],
-            'domains': ['mathematics', 'programming', 'language_learning'],
-            'validation_method': 'K-fold cross-validation'
-        }
+        "low_load": torch.randn(n_samples_per_condition, n_channels, seq_len),
+        "medium_load": torch.randn(n_samples_per_condition, n_channels, seq_len),
+        "high_load": torch.randn(n_samples_per_condition, n_channels, seq_len),
+        "metadata": {
+            "participants": participants,
+            "conditions": ["low_load", "medium_load", "high_load"],
+            "domains": ["mathematics", "programming", "language_learning"],
+            "validation_method": "K-fold cross-validation",
+        },
     }
 
     return dataset
 
 
-def validate_model_performance(model: CNNLSTMModel, dataset: Dict[str, Any]) -> Dict[str, float]:
+def validate_model_performance(
+    model: CNNLSTMModel, dataset: Dict[str, Any]
+) -> Dict[str, float]:
     """
     Validate model performance using research methodology.
 
@@ -494,11 +511,11 @@ def validate_model_performance(model: CNNLSTMModel, dataset: Dict[str, Any]) -> 
 
     with torch.no_grad():
         for condition, data in dataset.items():
-            if condition == 'metadata':
+            if condition == "metadata":
                 continue
 
             # Get true labels from condition
-            label_map = {'low_load': 0, 'medium_load': 1, 'high_load': 2}
+            label_map = {"low_load": 0, "medium_load": 1, "high_load": 2}
             true_label = label_map[condition]
 
             for sample in data:
@@ -514,14 +531,18 @@ def validate_model_performance(model: CNNLSTMModel, dataset: Dict[str, Any]) -> 
 
     # Confusion matrix for detailed analysis
     from sklearn.metrics import classification_report
-    report = classification_report(all_labels, all_predictions,
-                                 target_names=['low', 'medium', 'high'],
-                                 output_dict=True)
+
+    report = classification_report(
+        all_labels,
+        all_predictions,
+        target_names=["low", "medium", "high"],
+        output_dict=True,
+    )
 
     return {
-        'accuracy': accuracy,
-        'precision': report['weighted avg']['precision'],
-        'recall': report['weighted avg']['recall'],
-        'f1_score': report['weighted avg']['f1-score'],
-        'research_compliance': accuracy >= 0.85  # 85% target from research
+        "accuracy": accuracy,
+        "precision": report["weighted avg"]["precision"],
+        "recall": report["weighted avg"]["recall"],
+        "f1_score": report["weighted avg"]["f1-score"],
+        "research_compliance": accuracy >= 0.85,  # 85% target from research
     }
