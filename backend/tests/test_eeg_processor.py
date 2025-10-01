@@ -114,28 +114,28 @@ class TestEEGProcessor:
         band_powers = processor._calculate_band_powers(test_signal)
 
         # Check that we have power measurements for each band
-        expected_bands = ['delta', 'theta', 'alpha', 'beta', 'gamma']
+        expected_bands = ["delta", "theta", "alpha", "beta", "gamma"]
         for band in expected_bands:
             assert f"{band}_power_avg" in band_powers
             assert band_powers[f"{band}_power_avg"] >= 0
 
         # Alpha power should be relatively high due to our test signal
-        assert band_powers['alpha_power_avg'] > band_powers['delta_power_avg']
+        assert band_powers["alpha_power_avg"] > band_powers["delta_power_avg"]
 
     def test_calculate_attention_score(self, processor):
         """Test attention score calculation."""
         # Test with high beta, low alpha (high attention)
         band_powers = {
-            'beta_power_avg': 1.0,
-            'alpha_power_avg': 0.2,
+            "beta_power_avg": 1.0,
+            "alpha_power_avg": 0.2,
         }
         attention = processor._calculate_attention_score(band_powers)
         assert attention > 0.5  # Should be high attention
 
         # Test with low beta, high alpha (low attention)
         band_powers = {
-            'beta_power_avg': 0.2,
-            'alpha_power_avg': 1.0,
+            "beta_power_avg": 0.2,
+            "alpha_power_avg": 1.0,
         }
         attention = processor._calculate_attention_score(band_powers)
         assert attention < 0.5  # Should be low attention
@@ -144,18 +144,18 @@ class TestEEGProcessor:
         """Test stress level calculation."""
         # Test with high beta/gamma ratio (high stress)
         band_powers = {
-            'beta_power_avg': 1.0,
-            'gamma_power_avg': 0.2,
-            'theta_power_avg': 0.1,
+            "beta_power_avg": 1.0,
+            "gamma_power_avg": 0.2,
+            "theta_power_avg": 0.1,
         }
         stress = processor._calculate_stress_level(band_powers)
         assert stress > 0.5  # Should indicate stress
 
         # Test with low beta/gamma ratio (low stress)
         band_powers = {
-            'beta_power_avg': 0.2,
-            'gamma_power_avg': 1.0,
-            'theta_power_avg': 0.5,
+            "beta_power_avg": 0.2,
+            "gamma_power_avg": 1.0,
+            "theta_power_avg": 0.5,
         }
         stress = processor._calculate_stress_level(band_powers)
         assert stress < 0.5  # Should indicate relaxation
@@ -169,10 +169,10 @@ class TestEEGProcessor:
 
         quality = processor._assess_signal_quality(good_signal)
 
-        assert 'overall_quality' in quality
-        assert 'avg_snr' in quality
-        assert quality['overall_quality'] >= 0
-        assert quality['overall_quality'] <= 1
+        assert "overall_quality" in quality
+        assert "avg_snr" in quality
+        assert quality["overall_quality"] >= 0
+        assert quality["overall_quality"] <= 1
 
     @pytest.mark.asyncio
     async def test_process_sample_empty_buffer(self, processor):
@@ -182,9 +182,9 @@ class TestEEGProcessor:
         result = await processor.process_sample(sample)
 
         # Should return empty response when buffer is not full enough
-        assert result['attention_score'] == 0.5
-        assert result['stress_level'] == 0.5
-        assert result['signal_quality'] == 0.0
+        assert result["attention_score"] == 0.5
+        assert result["stress_level"] == 0.5
+        assert result["signal_quality"] == 0.0
 
 
 # Integration test
@@ -200,12 +200,18 @@ async def test_eeg_processor_integration():
         # Generate realistic EEG-like signal
         t = i / 256.0
         # Mix of different frequency components
-        sample = np.array([
-            50e-6 * np.sin(2 * np.pi * 10 * t) + 20e-6 * np.sin(2 * np.pi * 40 * t),  # Alpha + Gamma
-            40e-6 * np.sin(2 * np.pi * 12 * t) + 15e-6 * np.sin(2 * np.pi * 25 * t),  # Beta
-            30e-6 * np.sin(2 * np.pi * 8 * t) + 25e-6 * np.sin(2 * np.pi * 15 * t),   # Alpha + Beta
-            35e-6 * np.sin(2 * np.pi * 6 * t) + 10e-6 * np.sin(2 * np.pi * 35 * t),   # Theta + Gamma
-        ])
+        sample = np.array(
+            [
+                50e-6 * np.sin(2 * np.pi * 10 * t)
+                + 20e-6 * np.sin(2 * np.pi * 40 * t),  # Alpha + Gamma
+                40e-6 * np.sin(2 * np.pi * 12 * t)
+                + 15e-6 * np.sin(2 * np.pi * 25 * t),  # Beta
+                30e-6 * np.sin(2 * np.pi * 8 * t)
+                + 25e-6 * np.sin(2 * np.pi * 15 * t),  # Alpha + Beta
+                35e-6 * np.sin(2 * np.pi * 6 * t)
+                + 10e-6 * np.sin(2 * np.pi * 35 * t),  # Theta + Gamma
+            ]
+        )
 
         # Add some noise
         sample += np.random.normal(0, 5e-6, 4)
@@ -214,13 +220,13 @@ async def test_eeg_processor_integration():
 
         # Should get valid results after buffer fills
         if i >= 128:  # After buffer has enough data
-            assert 'attention_score' in result
-            assert 'stress_level' in result
-            assert 'cognitive_load' in result
-            assert 'processing_time' in result
-            assert result['processing_time'] > 0
+            assert "attention_score" in result
+            assert "stress_level" in result
+            assert "cognitive_load" in result
+            assert "processing_time" in result
+            assert result["processing_time"] > 0
 
     # Check final performance stats
     stats = processor.get_performance_stats()
-    assert stats['processing_count'] > 0
-    assert stats['avg_processing_time'] > 0
+    assert stats["processing_count"] > 0
+    assert stats["avg_processing_time"] > 0
