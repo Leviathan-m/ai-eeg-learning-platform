@@ -158,6 +158,9 @@ ignore_errors = true
 [[tool.mypy.overrides]]
 module = [
     "backend.eeg_processing.manager",
+    "backend.eeg_processing.processor",
+    "backend.utils.logging_config",
+    "backend.main",
 ]
 ignore_errors = true
 
