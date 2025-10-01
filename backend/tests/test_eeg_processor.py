@@ -9,8 +9,7 @@ from unittest.mock import Mock, patch
 
 import numpy as np
 import pytest
-
-from backend.eeg_processing.processor import CircularBuffer, EEGProcessor
+from eeg_processing.processor import CircularBuffer, EEGProcessor
 
 
 class TestCircularBuffer:
