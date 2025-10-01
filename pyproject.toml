@@ -124,6 +124,8 @@ skip = ["__init__.py"]
 
 [tool.mypy]
 python_version = "3.11"
+explicit_package_bases = true
+namespace_packages = true
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true
@@ -158,6 +160,15 @@ module = [
     "backend.eeg_processing.manager",
 ]
 ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = [
+    "sentry_sdk.*",
+    "redis.*",
+    "numpy.*",
+    "scipy.*",
+]
+ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 minversion = "7.4"
