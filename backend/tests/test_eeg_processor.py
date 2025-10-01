@@ -5,11 +5,12 @@ This module contains tests for the EEG processor, signal processing,
 and feature extraction components.
 """
 
-import pytest
-import numpy as np
 from unittest.mock import Mock, patch
 
-from backend.eeg_processing.processor import EEGProcessor, CircularBuffer
+import numpy as np
+import pytest
+
+from backend.eeg_processing.processor import CircularBuffer, EEGProcessor
 
 
 class TestCircularBuffer:
