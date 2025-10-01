@@ -31,7 +31,16 @@ def setup_logging() -> None:
     )
 
     # Configure structlog
-    shared_processors: list[Callable[[Any, str, MutableMapping[str, Any]], Mapping[str, Any] | str | bytes | bytearray | tuple[Any, ...]]] = [
+    shared_processors: list[
+        Callable[
+            [Any, str, MutableMapping[str, Any]],
+            Mapping[str, Any]
+            | str
+            | bytes
+            | bytearray
+            | tuple[Any, ...],
+        ]
+    ] = [
         structlog.stdlib.filter_by_level,
         structlog.stdlib.add_logger_name,
         structlog.stdlib.add_log_level,
@@ -44,7 +53,16 @@ def setup_logging() -> None:
 
     if settings.ENVIRONMENT == "development":
         # Development configuration
-        processors: list[Callable[[Any, str, MutableMapping[str, Any]], Mapping[str, Any] | str | bytes | bytearray | tuple[Any, ...]]] = shared_processors + [
+        processors: list[
+            Callable[
+                [Any, str, MutableMapping[str, Any]],
+                Mapping[str, Any]
+                | str
+                | bytes
+                | bytearray
+                | tuple[Any, ...],
+            ]
+        ] = shared_processors + [
             structlog.stdlib.ProcessorFormatter.wrap_for_formatter,
         ]
 

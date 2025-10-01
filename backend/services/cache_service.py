@@ -18,6 +18,7 @@ else:  # pragma: no cover - runtime import
     try:
         import redis.asyncio as redis  # type: ignore
         from redis.asyncio import Redis  # type: ignore
+
         REDIS_AVAILABLE = True
     except Exception:  # pragma: no cover - redis not installed
         REDIS_AVAILABLE = False
