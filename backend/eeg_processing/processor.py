@@ -14,7 +14,7 @@ Author: AI-EEG Learning Platform Team
 import asyncio
 import time
 from collections import deque
-from typing import Deque, Dict, List, Optional, Tuple, Union, SupportsFloat
+from typing import Deque, Dict, List, Optional, SupportsFloat, Tuple, Union
 
 import numpy as np
 import scipy.signal as signal

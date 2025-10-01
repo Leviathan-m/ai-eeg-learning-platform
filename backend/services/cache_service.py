@@ -9,7 +9,7 @@ Author: AI-EEG Learning Platform Team
 import asyncio
 import json
 import pickle
-from typing import Any, Dict, List, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 if TYPE_CHECKING:
     # Precise typing for mypy without runtime dependency

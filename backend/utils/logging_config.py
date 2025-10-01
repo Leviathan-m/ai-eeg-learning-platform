@@ -7,7 +7,7 @@ human-readable format for development.
 
 import logging
 import sys
-from typing import Any, Dict, Callable, Iterable, MutableMapping, Mapping, Sequence
+from typing import Any, Callable, Dict, Iterable, Mapping, MutableMapping, Sequence
 
 import structlog
 from pythonjsonlogger import jsonlogger
@@ -117,7 +117,9 @@ def setup_logging() -> None:
         import sentry_sdk
 
         try:
-            from sentry_sdk.integrations.fastapi import FastApiIntegration as FastAPIIntegration  # type: ignore[attr-defined]
+            from sentry_sdk.integrations.fastapi import (
+                FastApiIntegration as FastAPIIntegration,  # type: ignore[attr-defined]
+            )
         except Exception:  # pragma: no cover - fallback for older/newer SDKs
             from sentry_sdk.integrations.fastapi import FastApiIntegration as FastAPIIntegration  # type: ignore[no-redef]
         from sentry_sdk.integrations.redis import RedisIntegration
