@@ -115,6 +115,7 @@ def setup_logging() -> None:
     # Configure Sentry integration if DSN is provided
     if settings.SENTRY_DSN:
         import sentry_sdk
+
         try:
             from sentry_sdk.integrations.fastapi import FastApiIntegration as FastAPIIntegration  # type: ignore[attr-defined]
         except Exception:  # pragma: no cover - fallback for older/newer SDKs
