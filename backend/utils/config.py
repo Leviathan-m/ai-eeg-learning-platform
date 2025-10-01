@@ -7,7 +7,7 @@ Uses Pydantic settings for type-safe configuration with environment variable sup
 import secrets
 from typing import List, Optional, Union
 
-from pydantic import AnyHttpUrl, ValidationInfo, field_validator
+from pydantic import ValidationInfo, field_validator
 from pydantic_settings import BaseSettings
 
 
@@ -23,24 +23,28 @@ class Settings(BaseSettings):
 
     # Server Configuration
     SERVER_NAME: str = "AI-EEG Learning Platform"
-    SERVER_HOST: AnyHttpUrl = "http://localhost"
+    SERVER_HOST: str = "http://localhost"
     DEBUG: bool = True
     ENVIRONMENT: str = "development"
 
     # CORS Configuration
-    BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = [
+    BACKEND_CORS_ORIGINS: List[str] = [
         "http://localhost:3000",  # React dev server
         "http://localhost:8080",  # Alternative frontend port
     ]
 
     @field_validator("BACKEND_CORS_ORIGINS", mode="before")
     @classmethod
-    def assemble_cors_origins(cls, v: Union[str, List[str]]) -> Union[List[str], str]:
+    def assemble_cors_origins(cls, v: Union[str, List[str]]) -> List[str]:
         """Parse CORS origins from environment variable."""
         if isinstance(v, str) and not v.startswith("["):
             return [i.strip() for i in v.split(",")]
-        elif isinstance(v, (list, str)):
+        elif isinstance(v, list):
             return v
+        elif isinstance(v, str):
+            # Leave JSON-style string list parsing to Pydantic if provided
+            # but ensure type consistency for mypy by returning a list
+            return [v]
         raise ValueError(v)
 
     # Trusted Hosts

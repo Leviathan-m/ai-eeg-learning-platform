@@ -9,15 +9,20 @@ Author: AI-EEG Learning Platform Team
 import asyncio
 import json
 import pickle
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, TYPE_CHECKING
 
-try:
-    import redis.asyncio as redis
-
-    REDIS_AVAILABLE = True
-except ImportError:
-    REDIS_AVAILABLE = False
-    redis = None
+if TYPE_CHECKING:
+    # Precise typing for mypy without runtime dependency
+    from redis.asyncio import Redis  # type: ignore
+else:  # pragma: no cover - runtime import
+    try:
+        import redis.asyncio as redis  # type: ignore
+        from redis.asyncio import Redis  # type: ignore
+        REDIS_AVAILABLE = True
+    except Exception:  # pragma: no cover - redis not installed
+        REDIS_AVAILABLE = False
+        redis = None  # type: ignore
+        Redis = object  # type: ignore
 
 from utils.config import settings
 from utils.logging_config import get_request_logger
@@ -31,7 +36,7 @@ class CacheService:
     """
 
     def __init__(self):
-        self.redis_client = None
+        self.redis_client: Optional["Redis"] = None
         self.memory_cache = {}
         self.memory_cache_ttl = {}
         self.initialized = False

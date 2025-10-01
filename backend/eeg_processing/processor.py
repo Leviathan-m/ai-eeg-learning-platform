@@ -14,7 +14,7 @@ Author: AI-EEG Learning Platform Team
 import asyncio
 import time
 from collections import deque
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Deque, Dict, List, Optional, Tuple, Union, SupportsFloat
 
 import numpy as np
 import scipy.signal as signal
@@ -179,8 +179,8 @@ class EEGProcessor:
         self._init_filters()
 
         # Performance tracking
-        self.processing_times = deque(maxlen=100)
-        self.feature_extraction_times = deque(maxlen=100)
+        self.processing_times: Deque[float] = deque(maxlen=100)
+        self.feature_extraction_times: Deque[float] = deque(maxlen=100)
 
         self.logger = get_request_logger("eeg_processor")
 
@@ -229,10 +229,10 @@ class EEGProcessor:
         # Calculate processing time
         processing_time = (time.time() - start_time) * 1000  # ms
         self.processing_times.append(processing_time)
-        features["processing_time"] = processing_time
+        features["processing_time"] = float(processing_time)
 
         # Add timestamp
-        features["timestamp"] = time.time()
+        features["timestamp"] = float(time.time())
 
         return features
 

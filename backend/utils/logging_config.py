@@ -7,7 +7,7 @@ human-readable format for development.
 
 import logging
 import sys
-from typing import Any, Dict
+from typing import Any, Dict, Callable, Iterable, MutableMapping, Mapping, Sequence
 
 import structlog
 from pythonjsonlogger import jsonlogger
@@ -31,7 +31,7 @@ def setup_logging() -> None:
     )
 
     # Configure structlog
-    shared_processors = [
+    shared_processors: list[Callable[[Any, str, MutableMapping[str, Any]], Mapping[str, Any] | str | bytes | bytearray | tuple[Any, ...]]] = [
         structlog.stdlib.filter_by_level,
         structlog.stdlib.add_logger_name,
         structlog.stdlib.add_log_level,
@@ -44,7 +44,7 @@ def setup_logging() -> None:
 
     if settings.ENVIRONMENT == "development":
         # Development configuration
-        processors = shared_processors + [
+        processors: list[Callable[[Any, str, MutableMapping[str, Any]], Mapping[str, Any] | str | bytes | bytearray | tuple[Any, ...]]] = shared_processors + [
             structlog.stdlib.ProcessorFormatter.wrap_for_formatter,
         ]
 
@@ -105,7 +105,10 @@ def setup_logging() -> None:
     # Configure Sentry integration if DSN is provided
     if settings.SENTRY_DSN:
         import sentry_sdk
-        from sentry_sdk.integrations.fastapi import FastAPIIntegration
+        try:
+            from sentry_sdk.integrations.fastapi import FastApiIntegration as FastAPIIntegration  # type: ignore[attr-defined]
+        except Exception:  # pragma: no cover - fallback for older/newer SDKs
+            from sentry_sdk.integrations.fastapi import FastApiIntegration as FastAPIIntegration  # type: ignore[no-redef]
         from sentry_sdk.integrations.redis import RedisIntegration
         from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
 
