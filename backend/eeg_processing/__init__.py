@@ -1,3 +1,1 @@
 """EEG processing package."""
-
-
