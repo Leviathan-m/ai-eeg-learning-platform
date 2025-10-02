@@ -439,6 +439,64 @@ cd frontend/web && npm test -- --coverage
 docker-compose -f docker-compose.test.yml up --abort-on-container-exit
 ```
 
+### 🧭 Testing & CI Notes (Read before running CI locally)
+
+This project uses FastAPI + async DB/Redis integrations. Some modules pull in heavy/runtime-only dependencies (e.g., asyncpg, SQLAlchemy, Sentry, Uvicorn). To make unit-test collection run fast and avoid unnecessary runtime deps in CI, we use import stubs during tests.
+
+- Location: `backend/tests/conftest.py`
+- Purpose: Provide minimal stub modules so that test discovery/imports succeed without installing full stacks.
+
+Key stubs we install at test session start:
+
+```python
+# conftest.py (excerpt)
+def pytest_sessionstart(session):
+    # Heavy optional deps — replaced by empty modules
+    for mod in (
+        "asyncpg",
+        "uvicorn",
+        "sentry_sdk",
+        "sentry_sdk.integrations.fastapi",
+        "sentry_sdk.integrations.redis",
+        "sentry_sdk.integrations.sqlalchemy",
+    ):
+        _install_stub(mod)
+
+    # Minimal SQLAlchemy symbols used during import
+    # (We don't execute real DB ops in unit tests.)
+    if "sqlalchemy" not in sys.modules:
+        # creates sqlalchemy, sqlalchemy.ext.asyncio, sqlalchemy.orm, sqlalchemy.sql
+        # and basic names like Column, Integer, mapped_column, relationship, func
+        ...
+
+    # Avoid ORM import cost by providing a lightweight models namespace
+    if "database.models" not in sys.modules:
+        db_models = ModuleType("database.models")
+        class _Dummy: pass
+        db_models.User = _Dummy
+        db_models.EEGSession = _Dummy
+        db_models.LearningSession = _Dummy
+        db_models.Recommendation = _Dummy
+        sys.modules["database.models"] = db_models
+```
+
+Why we do this:
+- Test collection imports `backend/main.py` → routers → endpoint modules, which import DB and logging stacks. We stub them to keep unit tests fast and decoupled from infra.
+- Integration/e2e tests (e.g., with Docker) should run against real dependencies — the stubs only apply to unit tests.
+
+Pytest settings:
+- Configured via `pyproject.toml` → `[tool.pytest.ini_options]`
+  - `testpaths = ["backend/tests"]`
+  - Coverage: `--cov=backend` (scopes coverage to backend package)
+
+Coverage thresholds:
+- The repository enforces `--cov-fail-under=80` for backend. If adding tests is not feasible immediately, consider temporarily lowering this gate in `pyproject.toml` and opening a follow-up task to raise coverage later.
+
+Common pitfalls:
+- Import errors during collection usually mean a new runtime dependency was added to an import path. Either add a stub in `conftest.py` or move the import inside a function to defer it at runtime (recommended for optional integrations).
+- FastAPI TestClient smoke tests import the app — ensure `PYTHONPATH` includes repo root in CI. Our GitHub Actions already export it.
+
+
 ---
 
 ## 🎯 Why This Matters
