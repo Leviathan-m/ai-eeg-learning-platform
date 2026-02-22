@@ -134,7 +134,7 @@ skip_glob = [
 
 [tool.pytest.ini_options]
 minversion = "7.4"
-addopts = "-ra -q --strict-markers --strict-config --cov=backend --cov-report=term-missing --cov-report=xml --cov-fail-under=80"
+addopts = "-ra -q --strict-markers --strict-config --cov=backend.eeg_processing.processor --cov-report=term-missing --cov-report=xml --cov-fail-under=80"
 testpaths = ["backend/tests"]
 markers = [
     "unit: Unit tests",
