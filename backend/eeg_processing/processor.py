@@ -678,7 +678,11 @@ class EEGProcessor:
                 "gamma_power_avg",
             ]:
                 total_power += float(band_powers.get(k, 0) or 0)
-            gamma_relative = (float(band_powers.get("gamma_power_avg", 0)) / total_power) if total_power > 0 else 0.0
+            gamma_relative = (
+                (float(band_powers.get("gamma_power_avg", 0)) / total_power)
+                if total_power > 0
+                else 0.0
+            )
 
         # Weights tuned to align with expected test behavior
         ratio_weight = 0.7
